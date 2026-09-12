@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package vyborok;
+option go_package = "github.com/VT0x00/vyborok/http/proto;pb";
+
+// import "tag/tag.proto";
+import "api/annotations.proto";
+import "openapiv3/annotations.proto";
+// import "google/protobuf/wrappers.proto";
+
+service Vyborok {
+    rpc Health(HealthReq) returns (HealthRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "Health";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { get: "/health"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc Register(RegisterReq) returns (RegisterRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "Register";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { post: "/auth/register"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc Login(LoginReq) returns (LoginRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "Login";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { post: "/auth/login"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+}
+
+message HealthReq {}
+
+message HealthRsp {
+    string status = 1;
+}
+
+message RegisterReq {
+    string email     = 1;
+    string password  = 2;
+    string username  = 3;
+    string first_name = 4;
+    string last_name  = 5;
+}
+
+message RegisterRsp {
+    string access_token  = 1;
+    string refresh_token = 2;
+    UserProfile profile  = 3;
+}
+
+message LoginReq {
+    string email    = 1;
+    string password = 2;
+}
+
+message LoginRsp {
+    string access_token  = 1;
+    string refresh_token = 2;
+    UserProfile profile  = 3;
+}
+
+message UserProfile {
+    string id         = 1;
+    string username   = 2;
+    string email      = 3;
+    string first_name = 4;
+    string last_name  = 5;
+    string avatar_url = 6;
+    bool   is_private = 7;
+}
+
+message ErrorRsp {
+    string msg = 1;
+}

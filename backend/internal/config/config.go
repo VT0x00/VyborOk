@@ -7,16 +7,24 @@ import (
 	"time"
 )
 
+type AppConfig struct {
+	Env  string // "dev" или "prod"
+	Port string
+}
+
+type JWTConfig struct {
+	Secret     string
+	AccessTTL  time.Duration
+	RefreshTTL time.Duration
+	Issuer     string
+}
+
 type Config struct {
 	App   AppConfig
 	DB    DBConfig
 	Redis RedisConfig
 	NATS  NATSConfig
-}
-
-type AppConfig struct {
-	Env  string // "dev" или "prod"
-	Port string
+	JWT   JWTConfig
 }
 
 type DBConfig struct {
@@ -71,6 +79,12 @@ func Load() *Config {
 		NATS: NATSConfig{
 			Host: getEnv("NATS_HOST", "localhost"),
 			Port: getEnv("NATS_PORT", "4222"),
+		},
+		JWT: JWTConfig{
+			Secret:     getEnv("JWT_SECRET", "dev-secret-change-me-in-prod"),
+			AccessTTL:  getEnvDuration("JWT_ACCESS_TTL", 15*time.Minute),
+			RefreshTTL: getEnvDuration("JWT_REFRESH_TTL", 30*24*time.Hour),
+			Issuer:     getEnv("JWT_ISSUER", "vyborok"),
 		},
 	}
 }
