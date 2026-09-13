@@ -4,5 +4,5 @@
 
 </div>
 
-# VyborOk -- VO👍
+# VyborOk — VO👍
 ## to be continued...
