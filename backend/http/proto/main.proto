@@ -35,6 +35,15 @@ service Vyborok {
         option (micro.api.http) = { post: "/auth/login"; body: "*"; };
         option (micro.api.micro_method) = { timeout: "1s"; };
     }
+
+    rpc GetMe(GetMeReq) returns (ProfileRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "GetMe";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { get: "/auth/me"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
 }
 
 message HealthReq {}
@@ -76,6 +85,12 @@ message UserProfile {
     string last_name  = 5;
     string avatar_url = 6;
     bool   is_private = 7;
+}
+
+message GetMeReq {}
+
+message ProfileRsp {
+    UserProfile profile = 1;
 }
 
 message ErrorRsp {

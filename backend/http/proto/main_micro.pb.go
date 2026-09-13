@@ -19,10 +19,12 @@ type VyborokClient interface {
 	Health(ctx context.Context, req *HealthReq, opts ...client.CallOption) (*HealthRsp, error)
 	Register(ctx context.Context, req *RegisterReq, opts ...client.CallOption) (*RegisterRsp, error)
 	Login(ctx context.Context, req *LoginReq, opts ...client.CallOption) (*LoginRsp, error)
+	GetMe(ctx context.Context, req *GetMeReq, opts ...client.CallOption) (*ProfileRsp, error)
 }
 
 type VyborokServer interface {
 	Health(ctx context.Context, req *HealthReq, rsp *HealthRsp) error
 	Register(ctx context.Context, req *RegisterReq, rsp *RegisterRsp) error
 	Login(ctx context.Context, req *LoginReq, rsp *LoginRsp) error
+	GetMe(ctx context.Context, req *GetMeReq, rsp *ProfileRsp) error
 }

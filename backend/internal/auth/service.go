@@ -11,6 +11,7 @@ import (
 
 	"github.com/VT0x00/vyborok/internal/models"
 	"github.com/VT0x00/vyborok/internal/repository"
+	"github.com/google/uuid"
 )
 
 var (
@@ -109,7 +110,6 @@ func (s *Service) Login(ctx context.Context, email, password string) (*AuthResul
 	user, err := s.users.GetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			// Не раскрываем, что именно неверно: email или пароль.
 			return nil, ErrInvalidCredentials
 		}
 		return nil, fmt.Errorf("get user: %w", err)
@@ -125,6 +125,17 @@ func (s *Service) Login(ctx context.Context, email, password string) (*AuthResul
 	}
 
 	return &AuthResult{User: user, AccessToken: access, RefreshToken: refresh}, nil
+}
+
+func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+	user, err := s.users.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrInvalidCredentials
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+	return user, nil
 }
 
 func validateRegister(in RegisterInput) error {

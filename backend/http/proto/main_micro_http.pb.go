@@ -37,6 +37,13 @@ var (
 			Body:   "*",
 			Stream: false,
 		},
+		{
+			Name:   "Vyborok.GetMe",
+			Path:   "/auth/me",
+			Method: "GET",
+			Body:   "",
+			Stream: false,
+		},
 	}
 )
 
@@ -111,6 +118,26 @@ func (c *vyborokClient) Login(ctx context.Context, req *LoginReq, opts ...client
 	return rsp, nil
 }
 
+func (c *vyborokClient) GetMe(ctx context.Context, req *GetMeReq, opts ...client.CallOption) (*ProfileRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodGet),
+		v31.Path("/auth/me"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &ProfileRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.GetMe", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
 type vyborokServer struct {
 	VyborokServer
 }
@@ -139,11 +166,20 @@ func (h *vyborokServer) Login(ctx context.Context, req *LoginReq, rsp *LoginRsp)
 	return h.VyborokServer.Login(ctx, req, rsp)
 }
 
+func (h *vyborokServer) GetMe(ctx context.Context, req *GetMeReq, rsp *ProfileRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.GetMe(ctx, req, rsp)
+}
+
 func RegisterVyborokServer(s server.Server, sh VyborokServer, opts ...server.HandlerOption) error {
 	type vyborok interface {
 		Health(ctx context.Context, req *HealthReq, rsp *HealthRsp) error
 		Register(ctx context.Context, req *RegisterReq, rsp *RegisterRsp) error
 		Login(ctx context.Context, req *LoginReq, rsp *LoginRsp) error
+		GetMe(ctx context.Context, req *GetMeReq, rsp *ProfileRsp) error
 	}
 	type Vyborok struct {
 		vyborok

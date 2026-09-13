@@ -58,6 +58,22 @@ func (h *VyborokHandler) Login(ctx context.Context, req *pb.LoginReq, rsp *pb.Lo
 	return nil
 }
 
+func (h *VyborokHandler) GetMe(ctx context.Context, req *pb.GetMeReq, rsp *pb.ProfileRsp) error {
+	userID, ok := auth.UserIDFromContext(ctx)
+	if !ok {
+		return microerr.Unauthorized("unauthorized", "auth required")
+	}
+
+	user, err := h.auth.GetByID(ctx, userID)
+	if err != nil {
+		h.logger.Error("get me failed", "err", err, "user_id", userID)
+		return microerr.InternalServerError("internal_error", "something went wrong")
+	}
+
+	rsp.Profile = toProfile(user)
+	return nil
+}
+
 func toProfile(u *models.User) *pb.UserProfile {
 	if u == nil {
 		return nil

@@ -59,6 +59,7 @@ func main() {
 		server.Name("vyborok"),
 		server.Address(":"+cfg.App.Port),
 		server.Codec("application/json", jsoncodec.NewCodec()),
+		server.Hooks(jwtMgr.Middleware()),
 	)
 
 	if err := pb.RegisterVyborokServer(srv, h); err != nil {

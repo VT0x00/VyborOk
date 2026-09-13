@@ -443,6 +443,86 @@ func (x *UserProfile) GetIsPrivate() bool {
 	return false
 }
 
+type GetMeReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMeReq) Reset() {
+	*x = GetMeReq{}
+	mi := &file_main_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMeReq) ProtoMessage() {}
+
+func (x *GetMeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMeReq.ProtoReflect.Descriptor instead.
+func (*GetMeReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{7}
+}
+
+type ProfileRsp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Profile       *UserProfile           `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProfileRsp) Reset() {
+	*x = ProfileRsp{}
+	mi := &file_main_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProfileRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProfileRsp) ProtoMessage() {}
+
+func (x *ProfileRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProfileRsp.ProtoReflect.Descriptor instead.
+func (*ProfileRsp) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ProfileRsp) GetProfile() *UserProfile {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
 type ErrorRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Msg           string                 `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
@@ -452,7 +532,7 @@ type ErrorRsp struct {
 
 func (x *ErrorRsp) Reset() {
 	*x = ErrorRsp{}
-	mi := &file_main_proto_msgTypes[7]
+	mi := &file_main_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -464,7 +544,7 @@ func (x *ErrorRsp) String() string {
 func (*ErrorRsp) ProtoMessage() {}
 
 func (x *ErrorRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_main_proto_msgTypes[7]
+	mi := &file_main_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -477,7 +557,7 @@ func (x *ErrorRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorRsp.ProtoReflect.Descriptor instead.
 func (*ErrorRsp) Descriptor() ([]byte, []int) {
-	return file_main_proto_rawDescGZIP(), []int{7}
+	return file_main_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ErrorRsp) GetMsg() string {
@@ -524,9 +604,14 @@ const file_main_proto_rawDesc = "" +
 	"\n" +
 	"avatar_url\x18\x06 \x01(\tR\tavatarUrl\x12\x1d\n" +
 	"\n" +
-	"is_private\x18\a \x01(\bR\tisPrivate\"\x1c\n" +
+	"is_private\x18\a \x01(\bR\tisPrivate\"\n" +
+	"\n" +
+	"\bGetMeReq\"<\n" +
+	"\n" +
+	"ProfileRsp\x12.\n" +
+	"\aprofile\x18\x01 \x01(\v2\x14.vyborok.UserProfileR\aprofile\"\x1c\n" +
 	"\bErrorRsp\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\xf8\x02\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2\xea\x03\n" +
 	"\aVyborok\x12q\n" +
 	"\x06Health\x12\x12.vyborok.HealthReq\x1a\x12.vyborok.HealthRsp\"?\xaa\x84\x9e\x03!*\x06HealthB\x17\n" +
 	"\x15\x12\x13\n" +
@@ -539,6 +624,11 @@ const file_main_proto_rawDesc = "" +
 	"\x05Login\x12\x11.vyborok.LoginReq\x1a\x11.vyborok.LoginRsp\"E\xaa\x84\x9e\x03 *\x05LoginB\x17\n" +
 	"\x15\x12\x13\n" +
 	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x10:\x01*\"\v/auth/login\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12p\n" +
+	"\x05GetMe\x12\x11.vyborok.GetMeReq\x1a\x13.vyborok.ProfileRsp\"?\xaa\x84\x9e\x03 *\x05GetMeB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\n" +
+	"\x12\b/auth/me\xba\xea\xff\xf9\x01\x04\n" +
 	"\x021sB)Z'github.com/VT0x00/vyborok/http/proto;pbb\x06proto3"
 
 var (
@@ -553,7 +643,7 @@ func file_main_proto_rawDescGZIP() []byte {
 	return file_main_proto_rawDescData
 }
 
-var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_main_proto_goTypes = []any{
 	(*HealthReq)(nil),   // 0: vyborok.HealthReq
 	(*HealthRsp)(nil),   // 1: vyborok.HealthRsp
@@ -562,22 +652,27 @@ var file_main_proto_goTypes = []any{
 	(*LoginReq)(nil),    // 4: vyborok.LoginReq
 	(*LoginRsp)(nil),    // 5: vyborok.LoginRsp
 	(*UserProfile)(nil), // 6: vyborok.UserProfile
-	(*ErrorRsp)(nil),    // 7: vyborok.ErrorRsp
+	(*GetMeReq)(nil),    // 7: vyborok.GetMeReq
+	(*ProfileRsp)(nil),  // 8: vyborok.ProfileRsp
+	(*ErrorRsp)(nil),    // 9: vyborok.ErrorRsp
 }
 var file_main_proto_depIdxs = []int32{
 	6, // 0: vyborok.RegisterRsp.profile:type_name -> vyborok.UserProfile
 	6, // 1: vyborok.LoginRsp.profile:type_name -> vyborok.UserProfile
-	0, // 2: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
-	2, // 3: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
-	4, // 4: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
-	1, // 5: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
-	3, // 6: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
-	5, // 7: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 2: vyborok.ProfileRsp.profile:type_name -> vyborok.UserProfile
+	0, // 3: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
+	2, // 4: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
+	4, // 5: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
+	7, // 6: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
+	1, // 7: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
+	3, // 8: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
+	5, // 9: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
+	8, // 10: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_main_proto_init() }
@@ -591,7 +686,7 @@ func file_main_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_main_proto_rawDesc), len(file_main_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
