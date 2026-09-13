@@ -44,6 +44,27 @@ var (
 			Body:   "",
 			Stream: false,
 		},
+		{
+			Name:   "Vyborok.Refresh",
+			Path:   "/auth/refresh",
+			Method: "POST",
+			Body:   "*",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.UpdateProfile",
+			Path:   "/user/profile",
+			Method: "PUT",
+			Body:   "*",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.GetProfile",
+			Path:   "/user/{username}",
+			Method: "GET",
+			Body:   "",
+			Stream: false,
+		},
 	}
 )
 
@@ -138,6 +159,68 @@ func (c *vyborokClient) GetMe(ctx context.Context, req *GetMeReq, opts ...client
 	return rsp, nil
 }
 
+func (c *vyborokClient) Refresh(ctx context.Context, req *RefreshReq, opts ...client.CallOption) (*LoginRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodPost),
+		v31.Path("/auth/refresh"),
+		v31.Body("*"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &LoginRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.Refresh", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) UpdateProfile(ctx context.Context, req *UpdateProfileReq, opts ...client.CallOption) (*ProfileRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodPut),
+		v31.Path("/user/profile"),
+		v31.Body("*"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &ProfileRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.UpdateProfile", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) GetProfile(ctx context.Context, req *GetProfileReq, opts ...client.CallOption) (*ProfileRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodGet),
+		v31.Path("/user/{username}"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &ProfileRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.GetProfile", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
 type vyborokServer struct {
 	VyborokServer
 }
@@ -174,12 +257,39 @@ func (h *vyborokServer) GetMe(ctx context.Context, req *GetMeReq, rsp *ProfileRs
 	return h.VyborokServer.GetMe(ctx, req, rsp)
 }
 
+func (h *vyborokServer) Refresh(ctx context.Context, req *RefreshReq, rsp *LoginRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.Refresh(ctx, req, rsp)
+}
+
+func (h *vyborokServer) UpdateProfile(ctx context.Context, req *UpdateProfileReq, rsp *ProfileRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.UpdateProfile(ctx, req, rsp)
+}
+
+func (h *vyborokServer) GetProfile(ctx context.Context, req *GetProfileReq, rsp *ProfileRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.GetProfile(ctx, req, rsp)
+}
+
 func RegisterVyborokServer(s server.Server, sh VyborokServer, opts ...server.HandlerOption) error {
 	type vyborok interface {
 		Health(ctx context.Context, req *HealthReq, rsp *HealthRsp) error
 		Register(ctx context.Context, req *RegisterReq, rsp *RegisterRsp) error
 		Login(ctx context.Context, req *LoginReq, rsp *LoginRsp) error
 		GetMe(ctx context.Context, req *GetMeReq, rsp *ProfileRsp) error
+		Refresh(ctx context.Context, req *RefreshReq, rsp *LoginRsp) error
+		UpdateProfile(ctx context.Context, req *UpdateProfileReq, rsp *ProfileRsp) error
+		GetProfile(ctx context.Context, req *GetProfileReq, rsp *ProfileRsp) error
 	}
 	type Vyborok struct {
 		vyborok

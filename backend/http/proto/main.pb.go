@@ -358,8 +358,11 @@ type UserProfile struct {
 	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	FirstName     string                 `protobuf:"bytes,4,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
 	LastName      string                 `protobuf:"bytes,5,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	AvatarUrl     string                 `protobuf:"bytes,6,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
-	IsPrivate     bool                   `protobuf:"varint,7,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
+	Bio           string                 `protobuf:"bytes,6,opt,name=bio,proto3" json:"bio,omitempty"`
+	Links         []string               `protobuf:"bytes,7,rep,name=links,proto3" json:"links,omitempty"`
+	AvatarUrl     string                 `protobuf:"bytes,8,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	IsPrivate     bool                   `protobuf:"varint,9,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
+	PublicFields  []string               `protobuf:"bytes,10,rep,name=public_fields,json=publicFields,proto3" json:"public_fields,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,6 +432,20 @@ func (x *UserProfile) GetLastName() string {
 	return ""
 }
 
+func (x *UserProfile) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *UserProfile) GetLinks() []string {
+	if x != nil {
+		return x.Links
+	}
+	return nil
+}
+
 func (x *UserProfile) GetAvatarUrl() string {
 	if x != nil {
 		return x.AvatarUrl
@@ -441,6 +458,13 @@ func (x *UserProfile) GetIsPrivate() bool {
 		return x.IsPrivate
 	}
 	return false
+}
+
+func (x *UserProfile) GetPublicFields() []string {
+	if x != nil {
+		return x.PublicFields
+	}
+	return nil
 }
 
 type GetMeReq struct {
@@ -482,6 +506,8 @@ func (*GetMeReq) Descriptor() ([]byte, []int) {
 type ProfileRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Profile       *UserProfile           `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	Polls         []*PollSummary         `protobuf:"bytes,2,rep,name=polls,proto3" json:"polls,omitempty"`
+	ProfileHidden bool                   `protobuf:"varint,3,opt,name=profile_hidden,json=profileHidden,proto3" json:"profile_hidden,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -523,6 +549,300 @@ func (x *ProfileRsp) GetProfile() *UserProfile {
 	return nil
 }
 
+func (x *ProfileRsp) GetPolls() []*PollSummary {
+	if x != nil {
+		return x.Polls
+	}
+	return nil
+}
+
+func (x *ProfileRsp) GetProfileHidden() bool {
+	if x != nil {
+		return x.ProfileHidden
+	}
+	return false
+}
+
+type RefreshReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshReq) Reset() {
+	*x = RefreshReq{}
+	mi := &file_main_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshReq) ProtoMessage() {}
+
+func (x *RefreshReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshReq.ProtoReflect.Descriptor instead.
+func (*RefreshReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RefreshReq) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+type UpdateProfileReq struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Username        string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	FirstName       string                 `protobuf:"bytes,2,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName        string                 `protobuf:"bytes,3,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Bio             string                 `protobuf:"bytes,4,opt,name=bio,proto3" json:"bio,omitempty"`
+	Links           []string               `protobuf:"bytes,5,rep,name=links,proto3" json:"links,omitempty"`
+	AvatarUrl       string                 `protobuf:"bytes,6,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	IsPrivate       bool                   `protobuf:"varint,7,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
+	IsPrivateSet    bool                   `protobuf:"varint,8,opt,name=is_private_set,json=isPrivateSet,proto3" json:"is_private_set,omitempty"`
+	PublicFields    []string               `protobuf:"bytes,9,rep,name=public_fields,json=publicFields,proto3" json:"public_fields,omitempty"`
+	PublicFieldsSet bool                   `protobuf:"varint,10,opt,name=public_fields_set,json=publicFieldsSet,proto3" json:"public_fields_set,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateProfileReq) Reset() {
+	*x = UpdateProfileReq{}
+	mi := &file_main_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileReq) ProtoMessage() {}
+
+func (x *UpdateProfileReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileReq.ProtoReflect.Descriptor instead.
+func (*UpdateProfileReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdateProfileReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UpdateProfileReq) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *UpdateProfileReq) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+func (x *UpdateProfileReq) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *UpdateProfileReq) GetLinks() []string {
+	if x != nil {
+		return x.Links
+	}
+	return nil
+}
+
+func (x *UpdateProfileReq) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
+func (x *UpdateProfileReq) GetIsPrivate() bool {
+	if x != nil {
+		return x.IsPrivate
+	}
+	return false
+}
+
+func (x *UpdateProfileReq) GetIsPrivateSet() bool {
+	if x != nil {
+		return x.IsPrivateSet
+	}
+	return false
+}
+
+func (x *UpdateProfileReq) GetPublicFields() []string {
+	if x != nil {
+		return x.PublicFields
+	}
+	return nil
+}
+
+func (x *UpdateProfileReq) GetPublicFieldsSet() bool {
+	if x != nil {
+		return x.PublicFieldsSet
+	}
+	return false
+}
+
+type GetProfileReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfileReq) Reset() {
+	*x = GetProfileReq{}
+	mi := &file_main_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileReq) ProtoMessage() {}
+
+func (x *GetProfileReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileReq.ProtoReflect.Descriptor instead.
+func (*GetProfileReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetProfileReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+type PollSummary struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title          string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Status         string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	TotalVotes     int32                  `protobuf:"varint,4,opt,name=total_votes,json=totalVotes,proto3" json:"total_votes,omitempty"`
+	CompletionRate float32                `protobuf:"fixed32,5,opt,name=completion_rate,json=completionRate,proto3" json:"completion_rate,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *PollSummary) Reset() {
+	*x = PollSummary{}
+	mi := &file_main_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PollSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PollSummary) ProtoMessage() {}
+
+func (x *PollSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PollSummary.ProtoReflect.Descriptor instead.
+func (*PollSummary) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *PollSummary) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *PollSummary) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *PollSummary) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *PollSummary) GetTotalVotes() int32 {
+	if x != nil {
+		return x.TotalVotes
+	}
+	return 0
+}
+
+func (x *PollSummary) GetCompletionRate() float32 {
+	if x != nil {
+		return x.CompletionRate
+	}
+	return 0
+}
+
 type ErrorRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Msg           string                 `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
@@ -532,7 +852,7 @@ type ErrorRsp struct {
 
 func (x *ErrorRsp) Reset() {
 	*x = ErrorRsp{}
-	mi := &file_main_proto_msgTypes[9]
+	mi := &file_main_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -544,7 +864,7 @@ func (x *ErrorRsp) String() string {
 func (*ErrorRsp) ProtoMessage() {}
 
 func (x *ErrorRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_main_proto_msgTypes[9]
+	mi := &file_main_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -557,7 +877,7 @@ func (x *ErrorRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorRsp.ProtoReflect.Descriptor instead.
 func (*ErrorRsp) Descriptor() ([]byte, []int) {
-	return file_main_proto_rawDescGZIP(), []int{9}
+	return file_main_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ErrorRsp) GetMsg() string {
@@ -593,25 +913,58 @@ const file_main_proto_rawDesc = "" +
 	"\bLoginRsp\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12.\n" +
-	"\aprofile\x18\x03 \x01(\v2\x14.vyborok.UserProfileR\aprofile\"\xc9\x01\n" +
+	"\aprofile\x18\x03 \x01(\v2\x14.vyborok.UserProfileR\aprofile\"\x96\x02\n" +
 	"\vUserProfile\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1d\n" +
 	"\n" +
 	"first_name\x18\x04 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x05 \x01(\tR\blastName\x12\x1d\n" +
+	"\tlast_name\x18\x05 \x01(\tR\blastName\x12\x10\n" +
+	"\x03bio\x18\x06 \x01(\tR\x03bio\x12\x14\n" +
+	"\x05links\x18\a \x03(\tR\x05links\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\b \x01(\tR\tavatarUrl\x12\x1d\n" +
+	"\n" +
+	"is_private\x18\t \x01(\bR\tisPrivate\x12#\n" +
+	"\rpublic_fields\x18\n" +
+	" \x03(\tR\fpublicFields\"\n" +
+	"\n" +
+	"\bGetMeReq\"\x8f\x01\n" +
+	"\n" +
+	"ProfileRsp\x12.\n" +
+	"\aprofile\x18\x01 \x01(\v2\x14.vyborok.UserProfileR\aprofile\x12*\n" +
+	"\x05polls\x18\x02 \x03(\v2\x14.vyborok.PollSummaryR\x05polls\x12%\n" +
+	"\x0eprofile_hidden\x18\x03 \x01(\bR\rprofileHidden\"1\n" +
+	"\n" +
+	"RefreshReq\x12#\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"\xc7\x02\n" +
+	"\x10UpdateProfileReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x1d\n" +
+	"\n" +
+	"first_name\x18\x02 \x01(\tR\tfirstName\x12\x1b\n" +
+	"\tlast_name\x18\x03 \x01(\tR\blastName\x12\x10\n" +
+	"\x03bio\x18\x04 \x01(\tR\x03bio\x12\x14\n" +
+	"\x05links\x18\x05 \x03(\tR\x05links\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\x06 \x01(\tR\tavatarUrl\x12\x1d\n" +
 	"\n" +
-	"is_private\x18\a \x01(\bR\tisPrivate\"\n" +
-	"\n" +
-	"\bGetMeReq\"<\n" +
-	"\n" +
-	"ProfileRsp\x12.\n" +
-	"\aprofile\x18\x01 \x01(\v2\x14.vyborok.UserProfileR\aprofile\"\x1c\n" +
+	"is_private\x18\a \x01(\bR\tisPrivate\x12$\n" +
+	"\x0eis_private_set\x18\b \x01(\bR\fisPrivateSet\x12#\n" +
+	"\rpublic_fields\x18\t \x03(\tR\fpublicFields\x12*\n" +
+	"\x11public_fields_set\x18\n" +
+	" \x01(\bR\x0fpublicFieldsSet\"+\n" +
+	"\rGetProfileReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\x95\x01\n" +
+	"\vPollSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
+	"\vtotal_votes\x18\x04 \x01(\x05R\n" +
+	"totalVotes\x12'\n" +
+	"\x0fcompletion_rate\x18\x05 \x01(\x02R\x0ecompletionRate\"\x1c\n" +
 	"\bErrorRsp\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\xea\x03\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2\x85\a\n" +
 	"\aVyborok\x12q\n" +
 	"\x06Health\x12\x12.vyborok.HealthReq\x1a\x12.vyborok.HealthRsp\"?\xaa\x84\x9e\x03!*\x06HealthB\x17\n" +
 	"\x15\x12\x13\n" +
@@ -629,6 +982,20 @@ const file_main_proto_rawDesc = "" +
 	"\x15\x12\x13\n" +
 	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\n" +
 	"\x12\b/auth/me\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12|\n" +
+	"\aRefresh\x12\x13.vyborok.RefreshReq\x1a\x11.vyborok.LoginRsp\"I\xaa\x84\x9e\x03\"*\aRefreshB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x12:\x01*\"\r/auth/refresh\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12\x90\x01\n" +
+	"\rUpdateProfile\x12\x19.vyborok.UpdateProfileReq\x1a\x13.vyborok.ProfileRsp\"O\xaa\x84\x9e\x03(*\rUpdateProfileB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x12:\x01*\x1a\r/user/profile\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12\x87\x01\n" +
+	"\n" +
+	"GetProfile\x12\x16.vyborok.GetProfileReq\x1a\x13.vyborok.ProfileRsp\"L\xaa\x84\x9e\x03%*\n" +
+	"GetProfileB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x12\x12\x10/user/{username}\xba\xea\xff\xf9\x01\x04\n" +
 	"\x021sB)Z'github.com/VT0x00/vyborok/http/proto;pbb\x06proto3"
 
 var (
@@ -643,36 +1010,47 @@ func file_main_proto_rawDescGZIP() []byte {
 	return file_main_proto_rawDescData
 }
 
-var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_main_proto_goTypes = []any{
-	(*HealthReq)(nil),   // 0: vyborok.HealthReq
-	(*HealthRsp)(nil),   // 1: vyborok.HealthRsp
-	(*RegisterReq)(nil), // 2: vyborok.RegisterReq
-	(*RegisterRsp)(nil), // 3: vyborok.RegisterRsp
-	(*LoginReq)(nil),    // 4: vyborok.LoginReq
-	(*LoginRsp)(nil),    // 5: vyborok.LoginRsp
-	(*UserProfile)(nil), // 6: vyborok.UserProfile
-	(*GetMeReq)(nil),    // 7: vyborok.GetMeReq
-	(*ProfileRsp)(nil),  // 8: vyborok.ProfileRsp
-	(*ErrorRsp)(nil),    // 9: vyborok.ErrorRsp
+	(*HealthReq)(nil),        // 0: vyborok.HealthReq
+	(*HealthRsp)(nil),        // 1: vyborok.HealthRsp
+	(*RegisterReq)(nil),      // 2: vyborok.RegisterReq
+	(*RegisterRsp)(nil),      // 3: vyborok.RegisterRsp
+	(*LoginReq)(nil),         // 4: vyborok.LoginReq
+	(*LoginRsp)(nil),         // 5: vyborok.LoginRsp
+	(*UserProfile)(nil),      // 6: vyborok.UserProfile
+	(*GetMeReq)(nil),         // 7: vyborok.GetMeReq
+	(*ProfileRsp)(nil),       // 8: vyborok.ProfileRsp
+	(*RefreshReq)(nil),       // 9: vyborok.RefreshReq
+	(*UpdateProfileReq)(nil), // 10: vyborok.UpdateProfileReq
+	(*GetProfileReq)(nil),    // 11: vyborok.GetProfileReq
+	(*PollSummary)(nil),      // 12: vyborok.PollSummary
+	(*ErrorRsp)(nil),         // 13: vyborok.ErrorRsp
 }
 var file_main_proto_depIdxs = []int32{
-	6, // 0: vyborok.RegisterRsp.profile:type_name -> vyborok.UserProfile
-	6, // 1: vyborok.LoginRsp.profile:type_name -> vyborok.UserProfile
-	6, // 2: vyborok.ProfileRsp.profile:type_name -> vyborok.UserProfile
-	0, // 3: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
-	2, // 4: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
-	4, // 5: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
-	7, // 6: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
-	1, // 7: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
-	3, // 8: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
-	5, // 9: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
-	8, // 10: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6,  // 0: vyborok.RegisterRsp.profile:type_name -> vyborok.UserProfile
+	6,  // 1: vyborok.LoginRsp.profile:type_name -> vyborok.UserProfile
+	6,  // 2: vyborok.ProfileRsp.profile:type_name -> vyborok.UserProfile
+	12, // 3: vyborok.ProfileRsp.polls:type_name -> vyborok.PollSummary
+	0,  // 4: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
+	2,  // 5: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
+	4,  // 6: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
+	7,  // 7: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
+	9,  // 8: vyborok.Vyborok.Refresh:input_type -> vyborok.RefreshReq
+	10, // 9: vyborok.Vyborok.UpdateProfile:input_type -> vyborok.UpdateProfileReq
+	11, // 10: vyborok.Vyborok.GetProfile:input_type -> vyborok.GetProfileReq
+	1,  // 11: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
+	3,  // 12: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
+	5,  // 13: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
+	8,  // 14: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
+	5,  // 15: vyborok.Vyborok.Refresh:output_type -> vyborok.LoginRsp
+	8,  // 16: vyborok.Vyborok.UpdateProfile:output_type -> vyborok.ProfileRsp
+	8,  // 17: vyborok.Vyborok.GetProfile:output_type -> vyborok.ProfileRsp
+	11, // [11:18] is the sub-list for method output_type
+	4,  // [4:11] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_main_proto_init() }
@@ -686,7 +1064,7 @@ func file_main_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_main_proto_rawDesc), len(file_main_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -44,6 +44,33 @@ service Vyborok {
         option (micro.api.http) = { get: "/auth/me"; };
         option (micro.api.micro_method) = { timeout: "1s"; };
     }
+
+    rpc Refresh(RefreshReq) returns (LoginRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "Refresh";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { post: "/auth/refresh"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc UpdateProfile(UpdateProfileReq) returns (ProfileRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "UpdateProfile";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { put: "/user/profile"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc GetProfile(GetProfileReq) returns (ProfileRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "GetProfile";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { get: "/user/{username}"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
 }
 
 message HealthReq {}
@@ -78,19 +105,53 @@ message LoginRsp {
 }
 
 message UserProfile {
-    string id         = 1;
-    string username   = 2;
-    string email      = 3;
+    string id = 1;
+    string username = 2;
+    string email = 3;
     string first_name = 4;
-    string last_name  = 5;
-    string avatar_url = 6;
-    bool   is_private = 7;
+    string last_name = 5;
+    string bio = 6;
+    repeated string links = 7;
+    string avatar_url = 8;
+    bool is_private = 9;
+    repeated string public_fields = 10;
 }
 
 message GetMeReq {}
 
 message ProfileRsp {
     UserProfile profile = 1;
+    repeated PollSummary polls = 2;
+    bool profile_hidden = 3;
+}
+
+message RefreshReq {
+    string refresh_token = 1;
+}
+
+message UpdateProfileReq {
+    string username = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string bio = 4;
+    repeated string links = 5;
+    string avatar_url = 6;
+    bool is_private = 7;
+    bool is_private_set = 8;
+    repeated string public_fields = 9;
+    bool public_fields_set = 10;
+}
+
+message GetProfileReq {
+    string username = 1;
+}
+
+message PollSummary {
+    string id = 1;
+    string title = 2;
+    string status = 3;
+    int32 total_votes = 4;
+    float completion_rate = 5;
 }
 
 message ErrorRsp {

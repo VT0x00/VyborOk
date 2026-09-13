@@ -7,11 +7,11 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/VT0x00/vyborok/internal/models"
 	"github.com/VT0x00/vyborok/internal/repository"
-	"github.com/google/uuid"
 )
 
 var (
@@ -19,6 +19,8 @@ var (
 	ErrEmailTaken         = errors.New("email already taken")
 	ErrUsernameTaken      = errors.New("username already taken")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrInvalidToken       = errors.New("invalid token")
+	ErrNotFound           = errors.New("not found")
 )
 
 var (
@@ -47,6 +49,19 @@ type AuthResult struct {
 	User         *models.User
 	AccessToken  string
 	RefreshToken string
+}
+
+type UpdateProfileInput struct {
+	Username        string
+	FirstName       string
+	LastName        string
+	Bio             string
+	Links           []string
+	AvatarURL       string
+	IsPrivate       bool
+	IsPrivateSet    bool
+	PublicFields    []string
+	PublicFieldsSet bool
 }
 
 func (s *Service) Register(ctx context.Context, in RegisterInput) (*AuthResult, error) {
@@ -138,6 +153,114 @@ func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*models.User, erro
 	return user, nil
 }
 
+func (s *Service) GetMe(ctx context.Context, id uuid.UUID) (*models.User, error) {
+	user, err := s.users.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrInvalidToken
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+	return user, nil
+}
+
+func (s *Service) Refresh(ctx context.Context, refreshToken string) (*AuthResult, error) {
+	if refreshToken == "" {
+		return nil, ErrInvalidInput
+	}
+
+	claims, err := s.jwt.Parse(refreshToken, TokenTypeRefresh)
+	if err != nil {
+		return nil, ErrInvalidToken
+	}
+
+	user, err := s.users.GetByID(ctx, claims.UserID)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrInvalidToken
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	access, refresh, err := s.jwt.Generate(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AuthResult{User: user, AccessToken: access, RefreshToken: refresh}, nil
+}
+
+func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, in UpdateProfileInput) (*models.User, error) {
+	user, err := s.users.GetByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrInvalidToken
+		}
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	if in.Username != "" && in.Username != user.Username {
+		if !usernameRE.MatchString(in.Username) {
+			return nil, fmt.Errorf("%w: invalid username", ErrInvalidInput)
+		}
+		other, err := s.users.GetByUsername(ctx, in.Username)
+		if err == nil && other.ID != user.ID {
+			return nil, ErrUsernameTaken
+		}
+		if err != nil && !errors.Is(err, repository.ErrNotFound) {
+			return nil, fmt.Errorf("check username: %w", err)
+		}
+		user.Username = in.Username
+	}
+
+	if in.FirstName != "" {
+		user.FirstName = in.FirstName
+	}
+	if in.LastName != "" {
+		user.LastName = in.LastName
+	}
+	if in.Bio != "" {
+		user.Bio = in.Bio
+	}
+	if in.AvatarURL != "" {
+		user.AvatarURL = in.AvatarURL
+	}
+	if in.Links != nil {
+		user.Links = in.Links
+	}
+	if in.IsPrivateSet {
+		user.IsPrivate = in.IsPrivate
+	}
+	if in.PublicFieldsSet {
+		user.PublicFields = in.PublicFields
+	}
+
+	if err := s.users.Update(ctx, user); err != nil {
+		return nil, fmt.Errorf("update user: %w", err)
+	}
+	return user, nil
+}
+
+func (s *Service) GetProfile(ctx context.Context, username string, viewerID uuid.UUID) (*models.User, bool, error) {
+	user, err := s.users.GetByUsername(ctx, username)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, false, ErrNotFound
+		}
+		return nil, false, fmt.Errorf("get user: %w", err)
+	}
+
+	if !user.IsPrivate {
+		return user, false, nil
+	}
+
+	if viewerID != uuid.Nil && viewerID == user.ID {
+		return user, false, nil
+	}
+
+	return filterPublicFields(user), true, nil
+}
+
 func validateRegister(in RegisterInput) error {
 	if !emailRE.MatchString(in.Email) {
 		return fmt.Errorf("%w: invalid email", ErrInvalidInput)
@@ -153,4 +276,28 @@ func validateRegister(in RegisterInput) error {
 		return fmt.Errorf("%w: username must be 3-30 chars, letters/digits/underscore", ErrInvalidInput)
 	}
 	return nil
+}
+
+func filterPublicFields(u *models.User) *models.User {
+	out := &models.User{
+		ID:           u.ID,
+		Username:     u.Username,
+		IsPrivate:    true,
+		PublicFields: u.PublicFields,
+	}
+	for _, f := range u.PublicFields {
+		switch f {
+		case "first_name":
+			out.FirstName = u.FirstName
+		case "last_name":
+			out.LastName = u.LastName
+		case "bio":
+			out.Bio = u.Bio
+		case "links":
+			out.Links = u.Links
+		case "avatar_url":
+			out.AvatarURL = u.AvatarURL
+		}
+	}
+	return out
 }

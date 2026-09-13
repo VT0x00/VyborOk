@@ -20,6 +20,9 @@ type VyborokClient interface {
 	Register(ctx context.Context, req *RegisterReq, opts ...client.CallOption) (*RegisterRsp, error)
 	Login(ctx context.Context, req *LoginReq, opts ...client.CallOption) (*LoginRsp, error)
 	GetMe(ctx context.Context, req *GetMeReq, opts ...client.CallOption) (*ProfileRsp, error)
+	Refresh(ctx context.Context, req *RefreshReq, opts ...client.CallOption) (*LoginRsp, error)
+	UpdateProfile(ctx context.Context, req *UpdateProfileReq, opts ...client.CallOption) (*ProfileRsp, error)
+	GetProfile(ctx context.Context, req *GetProfileReq, opts ...client.CallOption) (*ProfileRsp, error)
 }
 
 type VyborokServer interface {
@@ -27,4 +30,7 @@ type VyborokServer interface {
 	Register(ctx context.Context, req *RegisterReq, rsp *RegisterRsp) error
 	Login(ctx context.Context, req *LoginReq, rsp *LoginRsp) error
 	GetMe(ctx context.Context, req *GetMeReq, rsp *ProfileRsp) error
+	Refresh(ctx context.Context, req *RefreshReq, rsp *LoginRsp) error
+	UpdateProfile(ctx context.Context, req *UpdateProfileReq, rsp *ProfileRsp) error
+	GetProfile(ctx context.Context, req *GetProfileReq, rsp *ProfileRsp) error
 }
