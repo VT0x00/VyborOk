@@ -82,7 +82,7 @@ func mapAuthError(err error) error {
 	case errors.Is(err, auth.ErrInvalidCredentials):
 		return microerr.Unauthorized("invalid_credentials", "invalid email or password")
 	case errors.Is(err, auth.ErrInvalidInput):
-		return microerr.BadRequest("invalid_input", err.Error())
+		return microerr.BadRequest("invalid_input", "%s", err.Error())
 	default:
 		return microerr.InternalServerError("internal_error", "something went wrong")
 	}

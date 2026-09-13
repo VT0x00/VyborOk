@@ -27,15 +27,21 @@ test-repo:
 	TEST_DATABASE_URL="$(TEST_DB_DSN)" go test ./internal/repository/... -v
 
 test-db-create:
-	docker exec -it vyborok-postgres psql -U postgres -c "CREATE DATABASE vyborok_test;" || true
+	@docker exec -it vyborok-postgres psql -U postgres -c "CREATE DATABASE vyborok_test;" || true
 
 test-db-migrate:
 	migrate -path db/migrations -database "$(TEST_DB_DSN)" up
 
 test-db-reset:
-	docker exec -it vyborok-postgres psql -U postgres -c "DROP DATABASE IF EXISTS vyborok_test;"
-	$(MAKE) test-db-create
-	$(MAKE) test-db-migrate
+	@docker exec -it vyborok-postgres psql -U postgres -c "DROP DATABASE IF EXISTS vyborok_test WITH (FORCE);"
+	@$(MAKE) test-db-create
+	@$(MAKE) test-db-migrate
+
+test-auth:
+	TEST_DATABASE_URL="$(TEST_DB_DSN)" go test ./internal/auth/... -v
+
+test-all:
+	TEST_DATABASE_URL="$(TEST_DB_DSN)" go test ./... -race -count=1
 
 
 gen:
