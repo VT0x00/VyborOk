@@ -142,17 +142,6 @@ func (s *Service) Login(ctx context.Context, email, password string) (*AuthResul
 	return &AuthResult{User: user, AccessToken: access, RefreshToken: refresh}, nil
 }
 
-func (s *Service) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
-	user, err := s.users.GetByID(ctx, id)
-	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return nil, ErrInvalidCredentials
-		}
-		return nil, fmt.Errorf("get user: %w", err)
-	}
-	return user, nil
-}
-
 func (s *Service) GetMe(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	user, err := s.users.GetByID(ctx, id)
 	if err != nil {
@@ -240,26 +229,6 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, in Update
 	}
 	return user, nil
 }
-
-// func (s *Service) GetProfile(ctx context.Context, username string, viewerID uuid.UUID) (*models.User, bool, error) {
-// 	user, err := s.users.GetByUsername(ctx, username)
-// 	if err != nil {
-// 		if errors.Is(err, repository.ErrNotFound) {
-// 			return nil, false, ErrNotFound
-// 		}
-// 		return nil, false, fmt.Errorf("get user: %w", err)
-// 	}
-
-// 	if !user.IsPrivate {
-// 		return user, false, nil
-// 	}
-
-// 	if viewerID != uuid.Nil && viewerID == user.ID {
-// 		return user, false, nil
-// 	}
-
-// 	return filterPublicFields(user), true, nil
-// }
 
 func (s *Service) GetProfile(ctx context.Context, username string, viewerID uuid.UUID) (*models.User, bool, error) {
 	user, err := s.users.GetByUsername(ctx, username)

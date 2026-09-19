@@ -68,7 +68,6 @@ func (h *VyborokHandler) GetMe(ctx context.Context, req *pb.GetMeReq, rsp *pb.Pr
 	user, err := h.auth.GetMe(ctx, userID)
 	if err != nil {
 		h.logger.Error("get me failed", "err", err, "user_id", userID)
-		// return microerr.InternalServerError("internal_error", "something went wrong")
 		return mapAuthError(err)
 	}
 

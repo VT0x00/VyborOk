@@ -1,7 +1,7 @@
 DB_DSN=postgres://postgres:postgres@localhost:5432/vyborok?sslmode=disable
 TEST_DB_DSN=postgres://postgres:postgres@localhost:5432/vyborok_test?sslmode=disable
 
-.PHONY: run migrate-up migrate-down migrate-version migrate-create test test-repo test-db-create test-db-migrate test-db-reset gen
+.PHONY: run migrate-up migrate-down migrate-version migrate-create test test-repo test-db-create test-db-migrate test-db-reset test-auth test-all gen
 
 run:
 	go run main.go
@@ -21,6 +21,7 @@ migrate-create:
 
 
 test:
+	go vet ./...
 	go test ./... -race
 
 test-repo:
@@ -41,6 +42,7 @@ test-auth:
 	TEST_DATABASE_URL="$(TEST_DB_DSN)" go test ./internal/auth/... -v
 
 test-all:
+	go vet ./...
 	TEST_DATABASE_URL="$(TEST_DB_DSN)" go test ./... -race -count=1
 
 
