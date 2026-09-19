@@ -13,12 +13,12 @@
 
 ## Фаза 1. Аутентификация: middleware и защищённые ручки (неделя 1)
 
-- [ ] **День 14.** Middleware: парсит `Authorization: Bearer`, кладёт `userID` в контекст. `UserIDFromContext`.
-- [ ] **День 15.** RPC `Refresh` — обмен refresh на новую пару токенов.
-- [ ] **День 16.** RPC `GetMe` — защищённый, возвращает профиль текущего.
-- [ ] **День 17.** RPC `UpdateProfile` — защищённый, обновляет username/bio/avatar/is_private.
-- [ ] **День 18.** RPC `GetProfile` — публичный, отдаёт профиль по username (с учётом `is_private`).
-- [ ] **День 19.** Тесты для middleware, Refresh, GetMe, UpdateProfile.
+- [x] **День 14.** Middleware: парсит `Authorization: Bearer`, кладёт `userID` в контекст. `UserIDFromContext`.
+- [x] **День 15.** RPC `Refresh` — обмен refresh на новую пару токенов.
+- [x] **День 16.** RPC `GetMe` — защищённый, возвращает профиль текущего.
+- [x] **День 17.** RPC `UpdateProfile` — защищённый, обновляет username/bio/avatar/is_private.
+- [x] **День 18.** RPC `GetProfile` — публичный, отдаёт профиль по username (с учётом `is_private`).
+- [x] **День 19.** Тесты для middleware, Refresh, GetMe, UpdateProfile.
 - [ ] **День 20.** Отладка, рефакторинг, документация ручек.
 
 ## Фаза 2. Опросы: CRUD (неделя 2)

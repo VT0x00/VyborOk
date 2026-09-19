@@ -241,6 +241,26 @@ func (s *Service) UpdateProfile(ctx context.Context, userID uuid.UUID, in Update
 	return user, nil
 }
 
+// func (s *Service) GetProfile(ctx context.Context, username string, viewerID uuid.UUID) (*models.User, bool, error) {
+// 	user, err := s.users.GetByUsername(ctx, username)
+// 	if err != nil {
+// 		if errors.Is(err, repository.ErrNotFound) {
+// 			return nil, false, ErrNotFound
+// 		}
+// 		return nil, false, fmt.Errorf("get user: %w", err)
+// 	}
+
+// 	if !user.IsPrivate {
+// 		return user, false, nil
+// 	}
+
+// 	if viewerID != uuid.Nil && viewerID == user.ID {
+// 		return user, false, nil
+// 	}
+
+// 	return filterPublicFields(user), true, nil
+// }
+
 func (s *Service) GetProfile(ctx context.Context, username string, viewerID uuid.UUID) (*models.User, bool, error) {
 	user, err := s.users.GetByUsername(ctx, username)
 	if err != nil {
@@ -250,15 +270,21 @@ func (s *Service) GetProfile(ctx context.Context, username string, viewerID uuid
 		return nil, false, fmt.Errorf("get user: %w", err)
 	}
 
-	if !user.IsPrivate {
-		return user, false, nil
-	}
-
 	if viewerID != uuid.Nil && viewerID == user.ID {
 		return user, false, nil
 	}
 
+	if !user.IsPrivate {
+		return stripEmail(user), false, nil
+	}
+
 	return filterPublicFields(user), true, nil
+}
+
+func stripEmail(u *models.User) *models.User {
+	out := *u
+	out.Email = ""
+	return &out
 }
 
 func validateRegister(in RegisterInput) error {
