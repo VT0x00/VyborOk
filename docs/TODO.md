@@ -23,9 +23,9 @@
 
 ## Фаза 2. Опросы: CRUD (неделя 2)
 
-- [ ] **День 21.** Миграция: `polls`, `questions`, `options`. Модели.
-- [ ] **День 22.** Репозиторий `PollRepository`: `Create`, `GetByID`, `ListByUser`, `Update`, `Delete`.
-- [ ] **День 23.** Репозиторий для вопросов и вариантов (вложенные).
+- [x] **День 21.** Миграция: `polls`, `questions`, `options`. Модели.
+- [x] **День 22.** Репозиторий `PollRepository`: `Create`, `GetByID`, `ListByUser`, `Update`, `Delete`.
+- [x] **День 23.** Репозиторий для вопросов и вариантов (вложенные).
 - [ ] **День 24.** RPC `CreatePoll` (POST /polls) — создание с вопросами и вариантами.
 - [ ] **День 25.** RPC `GetPoll` (GET /polls/{id}).
 - [ ] **День 26.** RPC `ListPolls` (GET /polls) — с пагинацией.
