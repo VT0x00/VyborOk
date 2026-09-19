@@ -19,7 +19,7 @@
 - [x] **День 17.** RPC `UpdateProfile` — защищённый, обновляет username/bio/avatar/is_private.
 - [x] **День 18.** RPC `GetProfile` — публичный, отдаёт профиль по username (с учётом `is_private`).
 - [x] **День 19.** Тесты для middleware, Refresh, GetMe, UpdateProfile.
-- [ ] **День 20.** Отладка, рефакторинг, документация ручек.
+- [x] **День 20.** Отладка, рефакторинг, документация ручек.
 
 ## Фаза 2. Опросы: CRUD (неделя 2)
 
