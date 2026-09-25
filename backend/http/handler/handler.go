@@ -10,16 +10,18 @@ import (
 	pb "github.com/VT0x00/vyborok/http/proto"
 	"github.com/VT0x00/vyborok/internal/auth"
 	"github.com/VT0x00/vyborok/internal/models"
+	"github.com/VT0x00/vyborok/internal/poll"
 	"github.com/google/uuid"
 )
 
 type VyborokHandler struct {
 	auth   *auth.Service
+	poll   *poll.Service
 	logger *slog.Logger
 }
 
-func New(authSvc *auth.Service, logger *slog.Logger) *VyborokHandler {
-	return &VyborokHandler{auth: authSvc, logger: logger}
+func New(authSvc *auth.Service, pollSvc *poll.Service, logger *slog.Logger) *VyborokHandler {
+	return &VyborokHandler{auth: authSvc, poll: pollSvc, logger: logger}
 }
 
 func (h *VyborokHandler) Health(ctx context.Context, req *pb.HealthReq, rsp *pb.HealthRsp) error {

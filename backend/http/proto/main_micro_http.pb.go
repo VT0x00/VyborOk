@@ -65,6 +65,48 @@ var (
 			Body:   "",
 			Stream: false,
 		},
+		{
+			Name:   "Vyborok.CreatePoll",
+			Path:   "/polls",
+			Method: "POST",
+			Body:   "*",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.GetPoll",
+			Path:   "/polls/{id}",
+			Method: "GET",
+			Body:   "",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.ListPolls",
+			Path:   "/polls",
+			Method: "GET",
+			Body:   "",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.UpdatePoll",
+			Path:   "/polls/{id}",
+			Method: "PUT",
+			Body:   "*",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.DeletePoll",
+			Path:   "/polls/{id}",
+			Method: "DELETE",
+			Body:   "",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.ClosePoll",
+			Path:   "/polls/{id}/close",
+			Method: "POST",
+			Body:   "",
+			Stream: false,
+		},
 	}
 )
 
@@ -221,6 +263,128 @@ func (c *vyborokClient) GetProfile(ctx context.Context, req *GetProfileReq, opts
 	return rsp, nil
 }
 
+func (c *vyborokClient) CreatePoll(ctx context.Context, req *CreatePollReq, opts ...client.CallOption) (*PollRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodPost),
+		v31.Path("/polls"),
+		v31.Body("*"),
+	)
+	td := time.Duration(5000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &PollRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.CreatePoll", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) GetPoll(ctx context.Context, req *GetPollReq, opts ...client.CallOption) (*PollRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodGet),
+		v31.Path("/polls/{id}"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &PollRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.GetPoll", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) ListPolls(ctx context.Context, req *ListPollsReq, opts ...client.CallOption) (*ListPollsRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodGet),
+		v31.Path("/polls"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &ListPollsRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.ListPolls", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) UpdatePoll(ctx context.Context, req *UpdatePollReq, opts ...client.CallOption) (*PollRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodPut),
+		v31.Path("/polls/{id}"),
+		v31.Body("*"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &PollRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.UpdatePoll", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) DeletePoll(ctx context.Context, req *DeletePollReq, opts ...client.CallOption) (*DeletePollRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodDelete),
+		v31.Path("/polls/{id}"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &DeletePollRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.DeletePoll", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) ClosePoll(ctx context.Context, req *ClosePollReq, opts ...client.CallOption) (*PollRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodPost),
+		v31.Path("/polls/{id}/close"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &PollRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.ClosePoll", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
 type vyborokServer struct {
 	VyborokServer
 }
@@ -281,6 +445,54 @@ func (h *vyborokServer) GetProfile(ctx context.Context, req *GetProfileReq, rsp 
 	return h.VyborokServer.GetProfile(ctx, req, rsp)
 }
 
+func (h *vyborokServer) CreatePoll(ctx context.Context, req *CreatePollReq, rsp *PollRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(5000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.CreatePoll(ctx, req, rsp)
+}
+
+func (h *vyborokServer) GetPoll(ctx context.Context, req *GetPollReq, rsp *PollRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.GetPoll(ctx, req, rsp)
+}
+
+func (h *vyborokServer) ListPolls(ctx context.Context, req *ListPollsReq, rsp *ListPollsRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.ListPolls(ctx, req, rsp)
+}
+
+func (h *vyborokServer) UpdatePoll(ctx context.Context, req *UpdatePollReq, rsp *PollRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.UpdatePoll(ctx, req, rsp)
+}
+
+func (h *vyborokServer) DeletePoll(ctx context.Context, req *DeletePollReq, rsp *DeletePollRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.DeletePoll(ctx, req, rsp)
+}
+
+func (h *vyborokServer) ClosePoll(ctx context.Context, req *ClosePollReq, rsp *PollRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.ClosePoll(ctx, req, rsp)
+}
+
 func RegisterVyborokServer(s server.Server, sh VyborokServer, opts ...server.HandlerOption) error {
 	type vyborok interface {
 		Health(ctx context.Context, req *HealthReq, rsp *HealthRsp) error
@@ -290,6 +502,12 @@ func RegisterVyborokServer(s server.Server, sh VyborokServer, opts ...server.Han
 		Refresh(ctx context.Context, req *RefreshReq, rsp *LoginRsp) error
 		UpdateProfile(ctx context.Context, req *UpdateProfileReq, rsp *ProfileRsp) error
 		GetProfile(ctx context.Context, req *GetProfileReq, rsp *ProfileRsp) error
+		CreatePoll(ctx context.Context, req *CreatePollReq, rsp *PollRsp) error
+		GetPoll(ctx context.Context, req *GetPollReq, rsp *PollRsp) error
+		ListPolls(ctx context.Context, req *ListPollsReq, rsp *ListPollsRsp) error
+		UpdatePoll(ctx context.Context, req *UpdatePollReq, rsp *PollRsp) error
+		DeletePoll(ctx context.Context, req *DeletePollReq, rsp *DeletePollRsp) error
+		ClosePoll(ctx context.Context, req *ClosePollReq, rsp *PollRsp) error
 	}
 	type Vyborok struct {
 		vyborok

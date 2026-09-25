@@ -10,6 +10,7 @@ import (
 	pb "github.com/VT0x00/vyborok/http/proto"
 	"github.com/VT0x00/vyborok/internal/auth"
 	"github.com/VT0x00/vyborok/internal/config"
+	"github.com/VT0x00/vyborok/internal/poll"
 	"github.com/VT0x00/vyborok/internal/repository"
 	"github.com/VT0x00/vyborok/pkg/database"
 
@@ -50,9 +51,11 @@ func main() {
 	logger.Info("connected to postgres", "host", cfg.DB.Host, "db", cfg.DB.Name)
 
 	userRepo := repository.NewUserRepository(db)
+	pollRepo := repository.NewPollRepository(db)
 	jwtMgr := auth.NewJWTManager(cfg.JWT.Secret, cfg.JWT.Issuer, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)
 	authSvc := auth.NewService(userRepo, jwtMgr)
-	h := handler.New(authSvc, logger)
+	pollSvc := poll.NewService(pollRepo)
+	h := handler.New(authSvc, pollSvc, logger)
 
 	// --- micro HTTP-сервер ---
 	srv := httpsrv.NewServer(

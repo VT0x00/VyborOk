@@ -71,6 +71,60 @@ service Vyborok {
         option (micro.api.http) = { get: "/user/{username}"; };
         option (micro.api.micro_method) = { timeout: "1s"; };
     }
+
+    rpc CreatePoll(CreatePollReq) returns (PollRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "CreatePoll";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { post: "/polls"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "5s"; };
+    }
+
+    rpc GetPoll(GetPollReq) returns (PollRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "GetPoll";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { get: "/polls/{id}"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc ListPolls(ListPollsReq) returns (ListPollsRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "ListPolls";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { get: "/polls"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc UpdatePoll(UpdatePollReq) returns (PollRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "UpdatePoll";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { put: "/polls/{id}"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc DeletePoll(DeletePollReq) returns (DeletePollRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "DeletePoll";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { delete: "/polls/{id}"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
+
+    rpc ClosePoll(ClosePollReq) returns (PollRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "ClosePoll";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { post: "/polls/{id}/close"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
 }
 
 message HealthReq {}
@@ -121,7 +175,7 @@ message GetMeReq {}
 
 message ProfileRsp {
     UserProfile profile = 1;
-    repeated PollSummary polls = 2;
+    repeated PollCard polls = 2;
     bool profile_hidden = 3;
 }
 
@@ -146,12 +200,106 @@ message GetProfileReq {
     string username = 1;
 }
 
-message PollSummary {
-    string id = 1;
-    string title = 2;
-    string status = 3;
-    int32 total_votes = 4;
-    float completion_rate = 5;
+message PollRsp {
+    Poll poll = 1;
+}
+
+message Poll {
+    string id          = 1;
+    string user_id     = 2;
+    string title       = 3;
+    string description = 4;
+    // status: "active" | "closed"
+    string status      = 5;
+    bool   anonymous   = 6;
+    repeated Question questions = 7;
+    string created_at  = 8; // RFC3339
+    string updated_at  = 9; // RFC3339
+}
+
+message Question {
+    string id          = 1;
+    string type        = 2; // "single" | "multiple" | "scale" | "text"
+    string title       = 3;
+    string description = 4;
+    int32  position    = 5;
+    // scale_min/scale_max - only for type="scale".
+    int32  scale_min   = 6;
+    int32  scale_max   = 7;
+    // text_max_length - only for type="text".
+    int32  text_max_length = 8;
+    // options - only for type="single"|"multiple".
+    repeated Option options = 9;
+}
+
+message Option {
+    string id       = 1;
+    string text     = 2;
+    int32  position = 3;
+}
+
+message CreatePollReq {
+    string title       = 1;
+    string description = 2;
+    bool   anonymous   = 3;
+    repeated CreateQuestionReq questions = 4;
+}
+
+message CreateQuestionReq {
+    string type        = 1;
+    string title       = 2;
+    string description = 3;
+    int32  scale_min   = 4;
+    int32  scale_max   = 5;
+    int32  text_max_length = 6;
+    repeated CreateOptionReq options = 7;
+}
+
+message CreateOptionReq {
+    string text = 1;
+}
+
+message GetPollReq {
+    string id = 1; // path param
+}
+
+message ListPollsReq {
+    // limit: 0 → default 20, max 100.
+    int32 limit  = 1;
+    // offset: 0 → first page.
+    int32 offset = 2;
+}
+
+message ListPollsRsp {
+    repeated PollCard polls = 1;
+}
+
+message PollCard {
+    string id          = 1;
+    string title       = 2;
+    string description = 3;
+    string status      = 4;
+    bool   anonymous   = 5;
+    int32  question_count = 6;
+    string created_at  = 7; // RFC3339
+}
+
+message UpdatePollReq {
+    string id          = 1; // path param
+    string title       = 2;
+    string description = 3;
+    bool   anonymous   = 4;
+    bool   anonymous_set = 5;
+}
+
+message DeletePollReq {
+    string id = 1; // path param
+}
+
+message DeletePollRsp {}
+
+message ClosePollReq {
+    string id = 1; // path param
 }
 
 message ErrorRsp {

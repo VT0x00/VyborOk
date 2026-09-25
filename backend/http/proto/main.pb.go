@@ -506,7 +506,7 @@ func (*GetMeReq) Descriptor() ([]byte, []int) {
 type ProfileRsp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Profile       *UserProfile           `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
-	Polls         []*PollSummary         `protobuf:"bytes,2,rep,name=polls,proto3" json:"polls,omitempty"`
+	Polls         []*PollCard            `protobuf:"bytes,2,rep,name=polls,proto3" json:"polls,omitempty"`
 	ProfileHidden bool                   `protobuf:"varint,3,opt,name=profile_hidden,json=profileHidden,proto3" json:"profile_hidden,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -549,7 +549,7 @@ func (x *ProfileRsp) GetProfile() *UserProfile {
 	return nil
 }
 
-func (x *ProfileRsp) GetPolls() []*PollSummary {
+func (x *ProfileRsp) GetPolls() []*PollCard {
 	if x != nil {
 		return x.Polls
 	}
@@ -767,31 +767,27 @@ func (x *GetProfileReq) GetUsername() string {
 	return ""
 }
 
-type PollSummary struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title          string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Status         string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	TotalVotes     int32                  `protobuf:"varint,4,opt,name=total_votes,json=totalVotes,proto3" json:"total_votes,omitempty"`
-	CompletionRate float32                `protobuf:"fixed32,5,opt,name=completion_rate,json=completionRate,proto3" json:"completion_rate,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+type PollRsp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Poll          *Poll                  `protobuf:"bytes,1,opt,name=poll,proto3" json:"poll,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PollSummary) Reset() {
-	*x = PollSummary{}
+func (x *PollRsp) Reset() {
+	*x = PollRsp{}
 	mi := &file_main_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PollSummary) String() string {
+func (x *PollRsp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PollSummary) ProtoMessage() {}
+func (*PollRsp) ProtoMessage() {}
 
-func (x *PollSummary) ProtoReflect() protoreflect.Message {
+func (x *PollRsp) ProtoReflect() protoreflect.Message {
 	mi := &file_main_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -803,44 +799,934 @@ func (x *PollSummary) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PollSummary.ProtoReflect.Descriptor instead.
-func (*PollSummary) Descriptor() ([]byte, []int) {
+// Deprecated: Use PollRsp.ProtoReflect.Descriptor instead.
+func (*PollRsp) Descriptor() ([]byte, []int) {
 	return file_main_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *PollSummary) GetId() string {
+func (x *PollRsp) GetPoll() *Poll {
+	if x != nil {
+		return x.Poll
+	}
+	return nil
+}
+
+type Poll struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId      string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Title       string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// status: "active" | "closed"
+	Status        string      `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	Anonymous     bool        `protobuf:"varint,6,opt,name=anonymous,proto3" json:"anonymous,omitempty"`
+	Questions     []*Question `protobuf:"bytes,7,rep,name=questions,proto3" json:"questions,omitempty"`
+	CreatedAt     string      `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // RFC3339
+	UpdatedAt     string      `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // RFC3339
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Poll) Reset() {
+	*x = Poll{}
+	mi := &file_main_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Poll) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Poll) ProtoMessage() {}
+
+func (x *Poll) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Poll.ProtoReflect.Descriptor instead.
+func (*Poll) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *Poll) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *PollSummary) GetTitle() string {
+func (x *Poll) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *Poll) GetTitle() string {
 	if x != nil {
 		return x.Title
 	}
 	return ""
 }
 
-func (x *PollSummary) GetStatus() string {
+func (x *Poll) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *Poll) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-func (x *PollSummary) GetTotalVotes() int32 {
+func (x *Poll) GetAnonymous() bool {
 	if x != nil {
-		return x.TotalVotes
+		return x.Anonymous
+	}
+	return false
+}
+
+func (x *Poll) GetQuestions() []*Question {
+	if x != nil {
+		return x.Questions
+	}
+	return nil
+}
+
+func (x *Poll) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *Poll) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+type Question struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type        string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"` // "single" | "multiple" | "scale" | "text"
+	Title       string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Position    int32                  `protobuf:"varint,5,opt,name=position,proto3" json:"position,omitempty"`
+	// scale_min/scale_max - only for type="scale".
+	ScaleMin int32 `protobuf:"varint,6,opt,name=scale_min,json=scaleMin,proto3" json:"scale_min,omitempty"`
+	ScaleMax int32 `protobuf:"varint,7,opt,name=scale_max,json=scaleMax,proto3" json:"scale_max,omitempty"`
+	// text_max_length - only for type="text".
+	TextMaxLength int32 `protobuf:"varint,8,opt,name=text_max_length,json=textMaxLength,proto3" json:"text_max_length,omitempty"`
+	// options - only for type="single"|"multiple".
+	Options       []*Option `protobuf:"bytes,9,rep,name=options,proto3" json:"options,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Question) Reset() {
+	*x = Question{}
+	mi := &file_main_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Question) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Question) ProtoMessage() {}
+
+func (x *Question) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Question.ProtoReflect.Descriptor instead.
+func (*Question) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *Question) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Question) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *Question) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *Question) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *Question) GetPosition() int32 {
+	if x != nil {
+		return x.Position
 	}
 	return 0
 }
 
-func (x *PollSummary) GetCompletionRate() float32 {
+func (x *Question) GetScaleMin() int32 {
 	if x != nil {
-		return x.CompletionRate
+		return x.ScaleMin
 	}
 	return 0
+}
+
+func (x *Question) GetScaleMax() int32 {
+	if x != nil {
+		return x.ScaleMax
+	}
+	return 0
+}
+
+func (x *Question) GetTextMaxLength() int32 {
+	if x != nil {
+		return x.TextMaxLength
+	}
+	return 0
+}
+
+func (x *Question) GetOptions() []*Option {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+type Option struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	Position      int32                  `protobuf:"varint,3,opt,name=position,proto3" json:"position,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Option) Reset() {
+	*x = Option{}
+	mi := &file_main_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Option) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Option) ProtoMessage() {}
+
+func (x *Option) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Option.ProtoReflect.Descriptor instead.
+func (*Option) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *Option) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Option) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *Option) GetPosition() int32 {
+	if x != nil {
+		return x.Position
+	}
+	return 0
+}
+
+type CreatePollReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Anonymous     bool                   `protobuf:"varint,3,opt,name=anonymous,proto3" json:"anonymous,omitempty"`
+	Questions     []*CreateQuestionReq   `protobuf:"bytes,4,rep,name=questions,proto3" json:"questions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePollReq) Reset() {
+	*x = CreatePollReq{}
+	mi := &file_main_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePollReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePollReq) ProtoMessage() {}
+
+func (x *CreatePollReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePollReq.ProtoReflect.Descriptor instead.
+func (*CreatePollReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CreatePollReq) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreatePollReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreatePollReq) GetAnonymous() bool {
+	if x != nil {
+		return x.Anonymous
+	}
+	return false
+}
+
+func (x *CreatePollReq) GetQuestions() []*CreateQuestionReq {
+	if x != nil {
+		return x.Questions
+	}
+	return nil
+}
+
+type CreateQuestionReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	ScaleMin      int32                  `protobuf:"varint,4,opt,name=scale_min,json=scaleMin,proto3" json:"scale_min,omitempty"`
+	ScaleMax      int32                  `protobuf:"varint,5,opt,name=scale_max,json=scaleMax,proto3" json:"scale_max,omitempty"`
+	TextMaxLength int32                  `protobuf:"varint,6,opt,name=text_max_length,json=textMaxLength,proto3" json:"text_max_length,omitempty"`
+	Options       []*CreateOptionReq     `protobuf:"bytes,7,rep,name=options,proto3" json:"options,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateQuestionReq) Reset() {
+	*x = CreateQuestionReq{}
+	mi := &file_main_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateQuestionReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateQuestionReq) ProtoMessage() {}
+
+func (x *CreateQuestionReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateQuestionReq.ProtoReflect.Descriptor instead.
+func (*CreateQuestionReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *CreateQuestionReq) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *CreateQuestionReq) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreateQuestionReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateQuestionReq) GetScaleMin() int32 {
+	if x != nil {
+		return x.ScaleMin
+	}
+	return 0
+}
+
+func (x *CreateQuestionReq) GetScaleMax() int32 {
+	if x != nil {
+		return x.ScaleMax
+	}
+	return 0
+}
+
+func (x *CreateQuestionReq) GetTextMaxLength() int32 {
+	if x != nil {
+		return x.TextMaxLength
+	}
+	return 0
+}
+
+func (x *CreateQuestionReq) GetOptions() []*CreateOptionReq {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+type CreateOptionReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Text          string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateOptionReq) Reset() {
+	*x = CreateOptionReq{}
+	mi := &file_main_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateOptionReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateOptionReq) ProtoMessage() {}
+
+func (x *CreateOptionReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateOptionReq.ProtoReflect.Descriptor instead.
+func (*CreateOptionReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *CreateOptionReq) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+type GetPollReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // path param
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPollReq) Reset() {
+	*x = GetPollReq{}
+	mi := &file_main_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPollReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPollReq) ProtoMessage() {}
+
+func (x *GetPollReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPollReq.ProtoReflect.Descriptor instead.
+func (*GetPollReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetPollReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ListPollsReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// limit: 0 → default 20, max 100.
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	// offset: 0 → first page.
+	Offset        int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPollsReq) Reset() {
+	*x = ListPollsReq{}
+	mi := &file_main_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPollsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPollsReq) ProtoMessage() {}
+
+func (x *ListPollsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPollsReq.ProtoReflect.Descriptor instead.
+func (*ListPollsReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListPollsReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListPollsReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type ListPollsRsp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Polls         []*PollCard            `protobuf:"bytes,1,rep,name=polls,proto3" json:"polls,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPollsRsp) Reset() {
+	*x = ListPollsRsp{}
+	mi := &file_main_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPollsRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPollsRsp) ProtoMessage() {}
+
+func (x *ListPollsRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPollsRsp.ProtoReflect.Descriptor instead.
+func (*ListPollsRsp) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListPollsRsp) GetPolls() []*PollCard {
+	if x != nil {
+		return x.Polls
+	}
+	return nil
+}
+
+type PollCard struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Anonymous     bool                   `protobuf:"varint,5,opt,name=anonymous,proto3" json:"anonymous,omitempty"`
+	QuestionCount int32                  `protobuf:"varint,6,opt,name=question_count,json=questionCount,proto3" json:"question_count,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // RFC3339
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PollCard) Reset() {
+	*x = PollCard{}
+	mi := &file_main_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PollCard) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PollCard) ProtoMessage() {}
+
+func (x *PollCard) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PollCard.ProtoReflect.Descriptor instead.
+func (*PollCard) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *PollCard) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *PollCard) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *PollCard) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *PollCard) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *PollCard) GetAnonymous() bool {
+	if x != nil {
+		return x.Anonymous
+	}
+	return false
+}
+
+func (x *PollCard) GetQuestionCount() int32 {
+	if x != nil {
+		return x.QuestionCount
+	}
+	return 0
+}
+
+func (x *PollCard) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+type UpdatePollReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // path param
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Anonymous     bool                   `protobuf:"varint,4,opt,name=anonymous,proto3" json:"anonymous,omitempty"`
+	AnonymousSet  bool                   `protobuf:"varint,5,opt,name=anonymous_set,json=anonymousSet,proto3" json:"anonymous_set,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePollReq) Reset() {
+	*x = UpdatePollReq{}
+	mi := &file_main_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePollReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePollReq) ProtoMessage() {}
+
+func (x *UpdatePollReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePollReq.ProtoReflect.Descriptor instead.
+func (*UpdatePollReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *UpdatePollReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdatePollReq) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *UpdatePollReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdatePollReq) GetAnonymous() bool {
+	if x != nil {
+		return x.Anonymous
+	}
+	return false
+}
+
+func (x *UpdatePollReq) GetAnonymousSet() bool {
+	if x != nil {
+		return x.AnonymousSet
+	}
+	return false
+}
+
+type DeletePollReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // path param
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePollReq) Reset() {
+	*x = DeletePollReq{}
+	mi := &file_main_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePollReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePollReq) ProtoMessage() {}
+
+func (x *DeletePollReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePollReq.ProtoReflect.Descriptor instead.
+func (*DeletePollReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *DeletePollReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeletePollRsp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePollRsp) Reset() {
+	*x = DeletePollRsp{}
+	mi := &file_main_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePollRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePollRsp) ProtoMessage() {}
+
+func (x *DeletePollRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePollRsp.ProtoReflect.Descriptor instead.
+func (*DeletePollRsp) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{25}
+}
+
+type ClosePollReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // path param
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClosePollReq) Reset() {
+	*x = ClosePollReq{}
+	mi := &file_main_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClosePollReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClosePollReq) ProtoMessage() {}
+
+func (x *ClosePollReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClosePollReq.ProtoReflect.Descriptor instead.
+func (*ClosePollReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *ClosePollReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 type ErrorRsp struct {
@@ -852,7 +1738,7 @@ type ErrorRsp struct {
 
 func (x *ErrorRsp) Reset() {
 	*x = ErrorRsp{}
-	mi := &file_main_proto_msgTypes[13]
+	mi := &file_main_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -864,7 +1750,7 @@ func (x *ErrorRsp) String() string {
 func (*ErrorRsp) ProtoMessage() {}
 
 func (x *ErrorRsp) ProtoReflect() protoreflect.Message {
-	mi := &file_main_proto_msgTypes[13]
+	mi := &file_main_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -877,7 +1763,7 @@ func (x *ErrorRsp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorRsp.ProtoReflect.Descriptor instead.
 func (*ErrorRsp) Descriptor() ([]byte, []int) {
-	return file_main_proto_rawDescGZIP(), []int{13}
+	return file_main_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ErrorRsp) GetMsg() string {
@@ -930,11 +1816,11 @@ const file_main_proto_rawDesc = "" +
 	"\rpublic_fields\x18\n" +
 	" \x03(\tR\fpublicFields\"\n" +
 	"\n" +
-	"\bGetMeReq\"\x8f\x01\n" +
+	"\bGetMeReq\"\x8c\x01\n" +
 	"\n" +
 	"ProfileRsp\x12.\n" +
-	"\aprofile\x18\x01 \x01(\v2\x14.vyborok.UserProfileR\aprofile\x12*\n" +
-	"\x05polls\x18\x02 \x03(\v2\x14.vyborok.PollSummaryR\x05polls\x12%\n" +
+	"\aprofile\x18\x01 \x01(\v2\x14.vyborok.UserProfileR\aprofile\x12'\n" +
+	"\x05polls\x18\x02 \x03(\v2\x11.vyborok.PollCardR\x05polls\x12%\n" +
 	"\x0eprofile_hidden\x18\x03 \x01(\bR\rprofileHidden\"1\n" +
 	"\n" +
 	"RefreshReq\x12#\n" +
@@ -955,16 +1841,80 @@ const file_main_proto_rawDesc = "" +
 	"\x11public_fields_set\x18\n" +
 	" \x01(\bR\x0fpublicFieldsSet\"+\n" +
 	"\rGetProfileReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"\x95\x01\n" +
-	"\vPollSummary\x12\x0e\n" +
+	"\busername\x18\x01 \x01(\tR\busername\",\n" +
+	"\aPollRsp\x12!\n" +
+	"\x04poll\x18\x01 \x01(\v2\r.vyborok.PollR\x04poll\"\x8c\x02\n" +
+	"\x04Poll\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12\x1c\n" +
+	"\tanonymous\x18\x06 \x01(\bR\tanonymous\x12/\n" +
+	"\tquestions\x18\a \x03(\v2\x11.vyborok.QuestionR\tquestions\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\b \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\tR\tupdatedAt\"\x8f\x02\n" +
+	"\bQuestion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x1a\n" +
+	"\bposition\x18\x05 \x01(\x05R\bposition\x12\x1b\n" +
+	"\tscale_min\x18\x06 \x01(\x05R\bscaleMin\x12\x1b\n" +
+	"\tscale_max\x18\a \x01(\x05R\bscaleMax\x12&\n" +
+	"\x0ftext_max_length\x18\b \x01(\x05R\rtextMaxLength\x12)\n" +
+	"\aoptions\x18\t \x03(\v2\x0f.vyborok.OptionR\aoptions\"H\n" +
+	"\x06Option\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x1a\n" +
+	"\bposition\x18\x03 \x01(\x05R\bposition\"\x9f\x01\n" +
+	"\rCreatePollReq\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1c\n" +
+	"\tanonymous\x18\x03 \x01(\bR\tanonymous\x128\n" +
+	"\tquestions\x18\x04 \x03(\v2\x1a.vyborok.CreateQuestionReqR\tquestions\"\xf5\x01\n" +
+	"\x11CreateQuestionReq\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1b\n" +
+	"\tscale_min\x18\x04 \x01(\x05R\bscaleMin\x12\x1b\n" +
+	"\tscale_max\x18\x05 \x01(\x05R\bscaleMax\x12&\n" +
+	"\x0ftext_max_length\x18\x06 \x01(\x05R\rtextMaxLength\x122\n" +
+	"\aoptions\x18\a \x03(\v2\x18.vyborok.CreateOptionReqR\aoptions\"%\n" +
+	"\x0fCreateOptionReq\x12\x12\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\"\x1c\n" +
+	"\n" +
+	"GetPollReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"<\n" +
+	"\fListPollsReq\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\"7\n" +
+	"\fListPollsRsp\x12'\n" +
+	"\x05polls\x18\x01 \x03(\v2\x11.vyborok.PollCardR\x05polls\"\xce\x01\n" +
+	"\bPollCard\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
-	"\vtotal_votes\x18\x04 \x01(\x05R\n" +
-	"totalVotes\x12'\n" +
-	"\x0fcompletion_rate\x18\x05 \x01(\x02R\x0ecompletionRate\"\x1c\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x1c\n" +
+	"\tanonymous\x18\x05 \x01(\bR\tanonymous\x12%\n" +
+	"\x0equestion_count\x18\x06 \x01(\x05R\rquestionCount\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\"\x9a\x01\n" +
+	"\rUpdatePollReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1c\n" +
+	"\tanonymous\x18\x04 \x01(\bR\tanonymous\x12#\n" +
+	"\ranonymous_set\x18\x05 \x01(\bR\fanonymousSet\"\x1f\n" +
+	"\rDeletePollReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x0f\n" +
+	"\rDeletePollRsp\"\x1e\n" +
+	"\fClosePollReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
 	"\bErrorRsp\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\x85\a\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2\x8c\r\n" +
 	"\aVyborok\x12q\n" +
 	"\x06Health\x12\x12.vyborok.HealthReq\x1a\x12.vyborok.HealthRsp\"?\xaa\x84\x9e\x03!*\x06HealthB\x17\n" +
 	"\x15\x12\x13\n" +
@@ -996,6 +1946,36 @@ const file_main_proto_rawDesc = "" +
 	"GetProfileB\x17\n" +
 	"\x15\x12\x13\n" +
 	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x12\x12\x10/user/{username}\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12}\n" +
+	"\n" +
+	"CreatePoll\x12\x16.vyborok.CreatePollReq\x1a\x10.vyborok.PollRsp\"E\xaa\x84\x9e\x03%*\n" +
+	"CreatePollB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\v:\x01*\"\x06/polls\xba\xea\xff\xf9\x01\x04\n" +
+	"\x025s\x12v\n" +
+	"\aGetPoll\x12\x13.vyborok.GetPollReq\x1a\x10.vyborok.PollRsp\"D\xaa\x84\x9e\x03\"*\aGetPollB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\r\x12\v/polls/{id}\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12|\n" +
+	"\tListPolls\x12\x15.vyborok.ListPollsReq\x1a\x15.vyborok.ListPollsRsp\"A\xaa\x84\x9e\x03$*\tListPollsB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\b\x12\x06/polls\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12\x82\x01\n" +
+	"\n" +
+	"UpdatePoll\x12\x16.vyborok.UpdatePollReq\x1a\x10.vyborok.PollRsp\"J\xaa\x84\x9e\x03%*\n" +
+	"UpdatePollB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x10:\x01*\x1a\v/polls/{id}\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12\x85\x01\n" +
+	"\n" +
+	"DeletePoll\x12\x16.vyborok.DeletePollReq\x1a\x16.vyborok.DeletePollRsp\"G\xaa\x84\x9e\x03%*\n" +
+	"DeletePollB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\r*\v/polls/{id}\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12\x82\x01\n" +
+	"\tClosePoll\x12\x15.vyborok.ClosePollReq\x1a\x10.vyborok.PollRsp\"L\xaa\x84\x9e\x03$*\tClosePollB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x13\"\x11/polls/{id}/close\xba\xea\xff\xf9\x01\x04\n" +
 	"\x021sB)Z'github.com/VT0x00/vyborok/http/proto;pbb\x06proto3"
 
 var (
@@ -1010,47 +1990,79 @@ func file_main_proto_rawDescGZIP() []byte {
 	return file_main_proto_rawDescData
 }
 
-var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_main_proto_goTypes = []any{
-	(*HealthReq)(nil),        // 0: vyborok.HealthReq
-	(*HealthRsp)(nil),        // 1: vyborok.HealthRsp
-	(*RegisterReq)(nil),      // 2: vyborok.RegisterReq
-	(*RegisterRsp)(nil),      // 3: vyborok.RegisterRsp
-	(*LoginReq)(nil),         // 4: vyborok.LoginReq
-	(*LoginRsp)(nil),         // 5: vyborok.LoginRsp
-	(*UserProfile)(nil),      // 6: vyborok.UserProfile
-	(*GetMeReq)(nil),         // 7: vyborok.GetMeReq
-	(*ProfileRsp)(nil),       // 8: vyborok.ProfileRsp
-	(*RefreshReq)(nil),       // 9: vyborok.RefreshReq
-	(*UpdateProfileReq)(nil), // 10: vyborok.UpdateProfileReq
-	(*GetProfileReq)(nil),    // 11: vyborok.GetProfileReq
-	(*PollSummary)(nil),      // 12: vyborok.PollSummary
-	(*ErrorRsp)(nil),         // 13: vyborok.ErrorRsp
+	(*HealthReq)(nil),         // 0: vyborok.HealthReq
+	(*HealthRsp)(nil),         // 1: vyborok.HealthRsp
+	(*RegisterReq)(nil),       // 2: vyborok.RegisterReq
+	(*RegisterRsp)(nil),       // 3: vyborok.RegisterRsp
+	(*LoginReq)(nil),          // 4: vyborok.LoginReq
+	(*LoginRsp)(nil),          // 5: vyborok.LoginRsp
+	(*UserProfile)(nil),       // 6: vyborok.UserProfile
+	(*GetMeReq)(nil),          // 7: vyborok.GetMeReq
+	(*ProfileRsp)(nil),        // 8: vyborok.ProfileRsp
+	(*RefreshReq)(nil),        // 9: vyborok.RefreshReq
+	(*UpdateProfileReq)(nil),  // 10: vyborok.UpdateProfileReq
+	(*GetProfileReq)(nil),     // 11: vyborok.GetProfileReq
+	(*PollRsp)(nil),           // 12: vyborok.PollRsp
+	(*Poll)(nil),              // 13: vyborok.Poll
+	(*Question)(nil),          // 14: vyborok.Question
+	(*Option)(nil),            // 15: vyborok.Option
+	(*CreatePollReq)(nil),     // 16: vyborok.CreatePollReq
+	(*CreateQuestionReq)(nil), // 17: vyborok.CreateQuestionReq
+	(*CreateOptionReq)(nil),   // 18: vyborok.CreateOptionReq
+	(*GetPollReq)(nil),        // 19: vyborok.GetPollReq
+	(*ListPollsReq)(nil),      // 20: vyborok.ListPollsReq
+	(*ListPollsRsp)(nil),      // 21: vyborok.ListPollsRsp
+	(*PollCard)(nil),          // 22: vyborok.PollCard
+	(*UpdatePollReq)(nil),     // 23: vyborok.UpdatePollReq
+	(*DeletePollReq)(nil),     // 24: vyborok.DeletePollReq
+	(*DeletePollRsp)(nil),     // 25: vyborok.DeletePollRsp
+	(*ClosePollReq)(nil),      // 26: vyborok.ClosePollReq
+	(*ErrorRsp)(nil),          // 27: vyborok.ErrorRsp
 }
 var file_main_proto_depIdxs = []int32{
 	6,  // 0: vyborok.RegisterRsp.profile:type_name -> vyborok.UserProfile
 	6,  // 1: vyborok.LoginRsp.profile:type_name -> vyborok.UserProfile
 	6,  // 2: vyborok.ProfileRsp.profile:type_name -> vyborok.UserProfile
-	12, // 3: vyborok.ProfileRsp.polls:type_name -> vyborok.PollSummary
-	0,  // 4: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
-	2,  // 5: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
-	4,  // 6: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
-	7,  // 7: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
-	9,  // 8: vyborok.Vyborok.Refresh:input_type -> vyborok.RefreshReq
-	10, // 9: vyborok.Vyborok.UpdateProfile:input_type -> vyborok.UpdateProfileReq
-	11, // 10: vyborok.Vyborok.GetProfile:input_type -> vyborok.GetProfileReq
-	1,  // 11: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
-	3,  // 12: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
-	5,  // 13: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
-	8,  // 14: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
-	5,  // 15: vyborok.Vyborok.Refresh:output_type -> vyborok.LoginRsp
-	8,  // 16: vyborok.Vyborok.UpdateProfile:output_type -> vyborok.ProfileRsp
-	8,  // 17: vyborok.Vyborok.GetProfile:output_type -> vyborok.ProfileRsp
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	22, // 3: vyborok.ProfileRsp.polls:type_name -> vyborok.PollCard
+	13, // 4: vyborok.PollRsp.poll:type_name -> vyborok.Poll
+	14, // 5: vyborok.Poll.questions:type_name -> vyborok.Question
+	15, // 6: vyborok.Question.options:type_name -> vyborok.Option
+	17, // 7: vyborok.CreatePollReq.questions:type_name -> vyborok.CreateQuestionReq
+	18, // 8: vyborok.CreateQuestionReq.options:type_name -> vyborok.CreateOptionReq
+	22, // 9: vyborok.ListPollsRsp.polls:type_name -> vyborok.PollCard
+	0,  // 10: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
+	2,  // 11: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
+	4,  // 12: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
+	7,  // 13: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
+	9,  // 14: vyborok.Vyborok.Refresh:input_type -> vyborok.RefreshReq
+	10, // 15: vyborok.Vyborok.UpdateProfile:input_type -> vyborok.UpdateProfileReq
+	11, // 16: vyborok.Vyborok.GetProfile:input_type -> vyborok.GetProfileReq
+	16, // 17: vyborok.Vyborok.CreatePoll:input_type -> vyborok.CreatePollReq
+	19, // 18: vyborok.Vyborok.GetPoll:input_type -> vyborok.GetPollReq
+	20, // 19: vyborok.Vyborok.ListPolls:input_type -> vyborok.ListPollsReq
+	23, // 20: vyborok.Vyborok.UpdatePoll:input_type -> vyborok.UpdatePollReq
+	24, // 21: vyborok.Vyborok.DeletePoll:input_type -> vyborok.DeletePollReq
+	26, // 22: vyborok.Vyborok.ClosePoll:input_type -> vyborok.ClosePollReq
+	1,  // 23: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
+	3,  // 24: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
+	5,  // 25: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
+	8,  // 26: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
+	5,  // 27: vyborok.Vyborok.Refresh:output_type -> vyborok.LoginRsp
+	8,  // 28: vyborok.Vyborok.UpdateProfile:output_type -> vyborok.ProfileRsp
+	8,  // 29: vyborok.Vyborok.GetProfile:output_type -> vyborok.ProfileRsp
+	12, // 30: vyborok.Vyborok.CreatePoll:output_type -> vyborok.PollRsp
+	12, // 31: vyborok.Vyborok.GetPoll:output_type -> vyborok.PollRsp
+	21, // 32: vyborok.Vyborok.ListPolls:output_type -> vyborok.ListPollsRsp
+	12, // 33: vyborok.Vyborok.UpdatePoll:output_type -> vyborok.PollRsp
+	25, // 34: vyborok.Vyborok.DeletePoll:output_type -> vyborok.DeletePollRsp
+	12, // 35: vyborok.Vyborok.ClosePoll:output_type -> vyborok.PollRsp
+	23, // [23:36] is the sub-list for method output_type
+	10, // [10:23] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_main_proto_init() }
@@ -1064,7 +2076,7 @@ func file_main_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_main_proto_rawDesc), len(file_main_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

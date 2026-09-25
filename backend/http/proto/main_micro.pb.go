@@ -23,6 +23,12 @@ type VyborokClient interface {
 	Refresh(ctx context.Context, req *RefreshReq, opts ...client.CallOption) (*LoginRsp, error)
 	UpdateProfile(ctx context.Context, req *UpdateProfileReq, opts ...client.CallOption) (*ProfileRsp, error)
 	GetProfile(ctx context.Context, req *GetProfileReq, opts ...client.CallOption) (*ProfileRsp, error)
+	CreatePoll(ctx context.Context, req *CreatePollReq, opts ...client.CallOption) (*PollRsp, error)
+	GetPoll(ctx context.Context, req *GetPollReq, opts ...client.CallOption) (*PollRsp, error)
+	ListPolls(ctx context.Context, req *ListPollsReq, opts ...client.CallOption) (*ListPollsRsp, error)
+	UpdatePoll(ctx context.Context, req *UpdatePollReq, opts ...client.CallOption) (*PollRsp, error)
+	DeletePoll(ctx context.Context, req *DeletePollReq, opts ...client.CallOption) (*DeletePollRsp, error)
+	ClosePoll(ctx context.Context, req *ClosePollReq, opts ...client.CallOption) (*PollRsp, error)
 }
 
 type VyborokServer interface {
@@ -33,4 +39,10 @@ type VyborokServer interface {
 	Refresh(ctx context.Context, req *RefreshReq, rsp *LoginRsp) error
 	UpdateProfile(ctx context.Context, req *UpdateProfileReq, rsp *ProfileRsp) error
 	GetProfile(ctx context.Context, req *GetProfileReq, rsp *ProfileRsp) error
+	CreatePoll(ctx context.Context, req *CreatePollReq, rsp *PollRsp) error
+	GetPoll(ctx context.Context, req *GetPollReq, rsp *PollRsp) error
+	ListPolls(ctx context.Context, req *ListPollsReq, rsp *ListPollsRsp) error
+	UpdatePoll(ctx context.Context, req *UpdatePollReq, rsp *PollRsp) error
+	DeletePoll(ctx context.Context, req *DeletePollReq, rsp *DeletePollRsp) error
+	ClosePoll(ctx context.Context, req *ClosePollReq, rsp *PollRsp) error
 }
