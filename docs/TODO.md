@@ -1,160 +1,161 @@
-## Фаза 0. Инфраструктура и скелет (завершена)
+## Phase 0. Infrastructure and skeleton (completed)
 
-- [x] **День 1.** Go, `go mod init`, `main.go` с `/health`, первый коммит.
-- [x] **День 2.** `config.go` с чтением переменных окружения.
-- [x] **День 3.** `docker-compose.yml` (PostgreSQL, Redis, NATS).
-- [x] **День 4.** `pkg/database/postgres.go` + подключение к БД.
-- [x] **День 5.** Миграции (`golang-migrate`), таблица `users`.
-- [x] **День 6–7.** proto + кодогенерация (`protoc`, `protoc-gen-go-micro`), `make gen`.
-- [x] **День 8–9.** micro HTTP-сервер, первый RPC `Health`.
-- [x] **День 10–11.** Модель `User`, репозиторий, интеграционные тесты.
-- [x] **День 12–13.** `Register`, `Login`, bcrypt, JWT, handler, обработка ошибок.
-- [x] **Тесты для auth** — JWT + сервис.
+- [x] **Day 1.** Go, `go mod init`, `main.go` with `/health`, first commit.
+- [x] **Day 2.** `config.go` with environment variable loading.
+- [x] **Day 3.** `docker-compose.yml` (PostgreSQL, Redis, NATS).
+- [x] **Day 4.** `pkg/database/postgres.go` + DB connection.
+- [x] **Day 5.** Migrations (`golang-migrate`), `users` table.
+- [x] **Day 6–7.** proto + code generation (`protoc`, `protoc-gen-go-micro`), `make gen`.
+- [x] **Day 8–9.** micro HTTP server, first RPC `Health`.
+- [x] **Day 10–11.** `User` model, repository, integration tests.
+- [x] **Day 12–13.** `Register`, `Login`, bcrypt, JWT, handler, error handling.
+- [x] **Auth tests** — JWT + service.
 
-## Фаза 1. Аутентификация: middleware и защищённые ручки (неделя 1)
+## Phase 1. Authentication: middleware and protected routes (week 1)
 
-- [x] **День 14.** Middleware: парсит `Authorization: Bearer`, кладёт `userID` в контекст. `UserIDFromContext`.
-- [x] **День 15.** RPC `Refresh` — обмен refresh на новую пару токенов.
-- [x] **День 16.** RPC `GetMe` — защищённый, возвращает профиль текущего.
-- [x] **День 17.** RPC `UpdateProfile` — защищённый, обновляет username/bio/avatar/is_private.
-- [x] **День 18.** RPC `GetProfile` — публичный, отдаёт профиль по username (с учётом `is_private`).
-- [x] **День 19.** Тесты для middleware, Refresh, GetMe, UpdateProfile.
-- [x] **День 20.** Отладка, рефакторинг, документация ручек.
+- [x] **Day 14.** Middleware: parses `Authorization: Bearer`, puts `userID` into context. `UserIDFromContext`.
+- [x] **Day 15.** RPC `Refresh` — exchange refresh token for a new token pair.
+- [x] **Day 16.** RPC `GetMe` — protected, returns the current user's profile.
+- [x] **Day 17.** RPC `UpdateProfile` — protected, updates username/bio/avatar/is_private.
+- [x] **Day 18.** RPC `GetProfile` — public, returns profile by username (respecting `is_private`).
+- [x] **Day 19.** Tests for middleware, Refresh, GetMe, UpdateProfile.
+- [x] **Day 20.** Debugging, refactoring, endpoint documentation.
 
-## Фаза 2. Опросы: CRUD (неделя 2)
+## Phase 2. Polls: CRUD (week 2)
 
-- [x] **День 21.** Миграция: `polls`, `questions`, `options`. Модели.
-- [x] **День 22.** Репозиторий `PollRepository`: `Create`, `GetByID`, `ListByUser`, `Update`, `Delete`.
-- [x] **День 23.** Репозиторий для вопросов и вариантов (вложенные).
-- [x] **День 24.** RPC `CreatePoll` (POST /polls) — создание с вопросами и вариантами.
-- [ ] **День 25.** RPC `GetPoll` (GET /polls/{id}).
-- [ ] **День 26.** RPC `ListPolls` (GET /polls) — с пагинацией.
-- [ ] **День 27.** RPC `UpdatePoll`, `DeletePoll`, `ClosePoll`.
-- [ ] **День 28.** Тесты репозитория и сервиса опросов.
+- [x] **Day 21.** Migration: `polls`, `questions`, `options`. Models.
+- [x] **Day 22.** `PollRepository`: `Create`, `GetByID`, `ListByUser`, `Update`, `Delete`.
+- [x] **Day 23.** Repository for questions and options (nested).
+- [x] **Day 24.** RPC `CreatePoll` (POST /polls) — create with questions and options.
+- [ ] **Day 25.** RPC `GetPoll` (GET /polls/{id}).
+- [ ] **Day 26.** RPC `ListPolls` (GET /polls) — with pagination.
+- [ ] **Day 27.** RPC `UpdatePoll`, `DeletePoll`, `ClosePoll`.
+- [ ] **Day 28.** Repository and poll service tests.
 
-## Фаза 3. Голосование (неделя 3)
+## Phase 3. Voting (week 3)
 
-- [ ] **День 29.** Миграция: `votes`. Модель. Индексы по `poll_id`, `user_id`.
-- [ ] **День 30.** Репозиторий `VoteRepository`: `Create`, `HasVoted`, `ListByPoll`.
-- [ ] **День 31.** RPC `SubmitVote` — принимает массив ответов, валидирует, сохраняет.
-- [ ] **День 32.** RPC `HasVoted` — проверка, голосовал ли уже текущий пользователь.
-- [ ] **День 33.** Проверка: анонимное голосование, авторизованное, повторное.
-- [ ] **День 34.** Тесты VoteService.
-- [ ] **День 35.** Рефакторинг + документация.
+- [ ] **Day 29.** Migration: `votes`. Model. Indexes on `poll_id`, `user_id`.
+- [ ] **Day 30.** `VoteRepository`: `Create`, `HasVoted`, `ListByPoll`.
+- [ ] **Day 31.** RPC `SubmitVote` — accepts an array of answers, validates, saves.
+- [ ] **Day 32.** RPC `HasVoted` — check whether the current user has already voted.
+- [ ] **Day 33.** Verification: anonymous voting, authenticated voting, repeat voting.
+- [ ] **Day 34.** VoteService tests.
+- [ ] **Day 35.** Refactoring + documentation.
 
-## Фаза 4. Базовая статистика (неделя 4)
+## Phase 4. Basic statistics (week 4)
 
-- [ ] **День 36.** RPC `GetStats` — агрегация по каждому вопросу (количество голосов, проценты).
-- [ ] **День 37.** Агрегация для шкал (среднее, медиана, гистограмма).
-- [ ] **День 38.** Агрегация для текстовых ответов (список).
-- [ ] **День 39.** Динамика по времени (по дням/часам).
-- [ ] **День 40.** Кэширование в Redis с инвалидацией при голосе.
-- [ ] **День 41.** Тесты StatsService.
-- [ ] **День 42.** Рефакторинг, документация.
+- [ ] **Day 36.** RPC `GetStats` — aggregation per question (vote counts, percentages).
+- [ ] **Day 37.** Aggregation for scales (mean, median, histogram).
+- [ ] **Day 38.** Aggregation for text responses (list).
+- [ ] **Day 39.** Time dynamics (by day/hour).
+- [ ] **Day 40.** Redis caching with invalidation on vote.
+- [ ] **Day 41.** StatsService tests.
+- [ ] **Day 42.** Refactoring, documentation.
 
-## Фаза 5. Redis: сессии, logout, rate limiting (неделя 5)
+## Phase 5. Redis: sessions, logout, rate limiting (week 5)
 
-- [ ] **День 43.** Подключение Redis в `pkg/redis`, интеграция в main.
-- [ ] **День 44.** Хранение refresh-токенов в Redis (для logout).
-- [ ] **День 45.** RPC `Logout` — удаляет refresh из Redis.
-- [ ] **День 46.** Blacklist access-токенов (опционально).
-- [ ] **День 47.** Rate limiting по IP на `/auth/*` (защита от брутфорса).
-- [ ] **День 48.** Кэш публичных опросов в Redis.
-- [ ] **День 49.** Тесты Redis-слоя.
-- [ ] **День 50.** Рефакторинг, документация.
+- [ ] **Day 43.** Redis integration in `pkg/redis`, wired into main.
+- [ ] **Day 44.** Store refresh tokens in Redis (for logout).
+- [ ] **Day 45.** RPC `Logout` — removes refresh from Redis.
+- [ ] **Day 46.** Access-token blacklist (optional).
+- [ ] **Day 47.** Rate limiting by IP on `/auth/*` (brute-force protection).
+- [ ] **Day 48.** Cache public polls in Redis.
+- [ ] **Day 49.** Redis layer tests.
+- [ ] **Day 50.** Refactoring, documentation.
 
-## Фаза 6. NATS и асинхронность (неделя 6)
+## Phase 6. NATS and async (week 6)
 
-- [ ] **День 51.** Подключение NATS в `pkg/nats`, интеграция в main.
-- [ ] **День 52.** Отправка событий `vote.created` при голосовании.
-- [ ] **День 53.** Асинхронный пересчёт статистики из события.
-- [ ] **День 54.** Очередь email-писем: подтверждение регистрации.
-- [ ] **День 55.** Реализация отправки email (SMTP или SendGrid).
-- [ ] **День 56.** RPC `VerifyEmail`, RPC `ForgotPassword`, RPC `ResetPassword`.
-- [ ] **День 57.** Тесты очередей и email-сценариев.
+- [ ] **Day 51.** NATS integration in `pkg/nats`, wired into main.
+- [ ] **Day 52.** Publish `vote.created` events on vote.
+- [ ] **Day 53.** Async stats recomputation from the event.
+- [ ] **Day 54.** Email queue: registration confirmation.
+- [ ] **Day 55.** Email delivery implementation (SMTP or SendGrid).
+- [ ] **Day 56.** RPC `VerifyEmail`, RPC `ForgotPassword`, RPC `ResetPassword`.
+- [ ] **Day 57.** Queue and email scenario tests.
 
-## Фаза 7. Фронтенд: Angular (недели 7–10)
+## Phase 7. Frontend: Angular (weeks 7–10)
 
-- [ ] **Неделя 7.** Инициализация Angular, layout, роутинг, i18n (ru/en).
-- [ ] **Неделя 8.** Auth-модуль: формы login/register, интерцептор JWT, guard.
-- [ ] **Неделя 9.** Личный кабинет: шапка, лента опросов, кнопка «+».
-- [ ] **Неделя 10.** Создание опроса: пошаговый мастер, все типы вопросов.
+- [ ] **Week 7.** Angular init, layout, routing, i18n (ru/en).
+- [ ] **Week 8.** Auth module: login/register forms, JWT interceptor, guard.
+- [ ] **Week 9.** User cabinet: header, poll feed, "+" button.
+- [ ] **Week 10.** Poll creation: step-by-step wizard, all question types.
 
-## Фаза 8. Фронтенд: опросы, голосование, статистика (недели 11–13)
+## Phase 8. Frontend: polls, voting, statistics (weeks 11–13)
 
-- [ ] **Неделя 11.** Страница опроса, голосование, показ результатов.
-- [ ] **Неделя 12.** Страница статистики: Chart.js, круговые/столбчатые/линейные.
-- [ ] **Неделя 13.** Публичный профиль, страница `/username`, настройки приватности.
+- [ ] **Week 11.** Poll page, voting, results display.
+- [ ] **Week 12.** Statistics page: Chart.js, pie/bar/line charts.
+- [ ] **Week 13.** Public profile, `/username` page, privacy settings.
 
-## Фаза 9. Гео-ограничения (неделя 14)
+## Phase 9. Geo restrictions (week 14)
 
-- [ ] **День 60.** GeoIP-база (MaxMind GeoLite2), middleware для определения страны.
-- [ ] **День 61.** Проверка `geo_countries` при `SubmitVote`.
-- [ ] **День 62.** Тесты гео.
-- [ ] **День 63.** UI выбора стран при создании опроса.
+- [ ] **Day 60.** GeoIP database (MaxMind GeoLite2), middleware to detect country.
+- [ ] **Day 61.** Check `geo_countries` on `SubmitVote`.
+- [ ] **Day 62.** Geo tests.
+- [ ] **Day 63.** Country selector UI on poll creation.
 
-## Фаза 10. Медиа (неделя 15)
+## Phase 10. Media (week 15)
 
-- [ ] **День 64.** `pkg/storage` — локальное хранилище файлов.
-- [ ] **День 65.** RPC `UploadMedia` (multipart/form-data).
-- [ ] **День 66.** Ресайз аватарок, валидация MIME и размеров.
-- [ ] **День 67.** Интеграция с опросами (media_url в вопросах).
-- [ ] **День 68.** Тесты.
-- [ ] **День 69.** UI загрузки файлов.
-- [ ] **День 70.** Отдача файлов через `/media/{path}`.
+- [ ] **Day 64.** `pkg/storage` — local file storage.
+- [ ] **Day 65.** RPC `UploadMedia` (multipart/form-data).
+- [ ] **Day 66.** Avatar resize, MIME and size validation.
+- [ ] **Day 67.** Integration with polls (`media_url` in questions).
+- [ ] **Day 68.** Tests.
+- [ ] **Day 69.** File upload UI.
+- [ ] **Day 70.** Serve files via `/media/{path}`.
 
-## Фаза 11. Встраивание / embed (неделя 16)
+## Phase 11. Embed (week 16)
 
-- [ ] **День 71.** Страница `/embed/{poll_id}` без шапки/футера.
-- [ ] **День 72.** Генерация iframe-кода в личном кабинете.
-- [ ] **День 73.** CORS для домена-встраивателя.
-- [ ] **День 74.** Параметры (ширина, высота, скрытие заголовка).
-- [ ] **День 75.** Тесты.
+- [ ] **Day 71.** `/embed/{poll_id}` page without header/footer.
+- [ ] **Day 72.** iframe snippet generation in the user cabinet.
+- [ ] **Day 73.** CORS for embedding domains.
+- [ ] **Day 74.** Parameters (width, height, title hiding).
+- [ ] **Day 75.** Tests.
 
-## Фаза 12. Экспорт CSV/PDF (неделя 17)
+## Phase 12. CSV/PDF export (week 17)
 
-- [ ] **День 76.** RPC `ExportCSV` — сырые данные.
-- [ ] **День 77.** RPC `ExportPDF` — отчёт с диаграммами.
-- [ ] **День 78.** Кнопки экспорта на фронте.
-- [ ] **День 79.** Тесты.
+- [ ] **Day 76.** RPC `ExportCSV` — raw data.
+- [ ] **Day 77.** RPC `ExportPDF` — report with charts.
+- [ ] **Day 78.** Export buttons on the frontend.
+- [ ] **Day 79.** Tests.
 
-## Фаза 13. Инфраструктура, мониторинг, безопасность (неделя 18)
+## Phase 13. Infrastructure, monitoring, security (week 18)
 
-- [ ] **День 80.** Prometheus-метрики (`/metrics`) для каждого слоя.
-- [ ] **День 81.** Grafana-дашборд: RPS, latency, ошибки.
-- [ ] **День 82.** Структурированные логи → Loki (или EFK).
-- [ ] **День 83.** Health-чеки для БД/Redis/NATS.
-- [ ] **День 84.** Security-аудит: CORS, rate limit, HTTPS, SQL-инъекции.
-- [ ] **День 85.** Нагрузочное тестирование (k6) — 100 одновременных.
-- [ ] **День 86.** Оптимизация узких мест.
+- [ ] **Day 80.** Prometheus metrics (`/metrics`) for every layer.
+- [ ] **Day 81.** Grafana dashboard: RPS, latency, errors.
+- [ ] **Day 82.** Structured logs → Loki (or EFK).
+- [ ] **Day 83.** Health checks for DB/Redis/NATS.
+- [ ] **Day 84.** Security audit: CORS, rate limit, HTTPS, SQL injection.
+- [ ] **Day 85.** Load testing (k6) — 100 concurrent users.
+- [ ] **Day 86.** Optimize bottlenecks.
 
-## Фаза 14. CI/CD и деплой (неделя 19)
+## Phase 14. CI/CD and deploy (week 19)
 
-- [ ] **День 87.** GitHub Actions: сборка и тесты на push в main.
-- [ ] **День 88.** Сборка Docker-образов и push в ghcr.io.
-- [ ] **День 89.** `docker-compose.prod.yml` на VPS.
-- [ ] **День 90.** Деплой через SSH из GitHub Actions.
-- [ ] **День 91.** HTTPS через Let's Encrypt (certbot / traefik).
-- [ ] **День 92.** Бэкапы БД (pg_dump по крону).
-- [ ] **День 93.** Smoke-тесты прода.
+- [ ] **Day 87.** GitHub Actions: build and test on push to main.
+- [ ] **Day 88.** Build Docker images and push to ghcr.io.
+- [ ] **Day 89.** `docker-compose.prod.yml` on the VPS.
+- [ ] **Day 90.** Deploy via SSH from GitHub Actions.
+- [ ] **Day 91.** HTTPS via Let's Encrypt (certbot / traefik).
+- [ ] **Day 92.** DB backups (`pg_dump` on cron).
+- [ ] **Day 93.** Prod smoke tests.
 
-## Фаза 15. Документация и полировка (неделя 20)
+## Phase 15. Documentation and polish (week 20)
 
-- [ ] **День 94.** Swagger/OpenAPI — автогенерация из proto.
-- [ ] **День 95.** Пользовательская документация на лендинге.
-- [ ] **День 96.** README для разработчика: как запустить проект.
-- [ ] **День 97.** ADR: почему монолит, micro, JWT, bcrypt.
-- [ ] **День 98.** Онбординг-тур по UI (первый вход).
-- [ ] **День 99.** Пустые состояния, обработка ошибок на фронте.
-- [ ] **День 100.** Финальный прогон тестов и релиз.
+- [ ] **Day 94.** Swagger/OpenAPI — auto-generated from proto.
+- [ ] **Day 95.** User documentation on the landing page.
+- [ ] **Day 96.** Developer README: how to run the project.
+- [ ] **Day 97.** ADR: why monolith, micro, JWT, bcrypt.
+- [ ] **Day 98.** UI onboarding tour (first login).
+- [ ] **Day 99.** Empty states, error handling on the frontend.
+- [ ] **Day 100.** Final test run and release.
 
-## Пост-MVP (бэклог)
+## Post-MVP (backlog)
 
-- [ ] CAPTCHA для анонимного голосования.
-- [ ] IP-ограничения и fingerprint для анти-фрода.
-- [ ] OAuth: Яндекс ID, Google, GitHub.
-- [ ] Тёмная тема.
-- [ ] Kubernetes-манифесты.
-- [ ] JavaScript-виджет вместо iframe.
-- [ ] WebSocket для статистики в реальном времени.
-- [ ] Мобильное приложение -- (?)
+- [ ] CAPTCHA for anonymous voting.
+- [ ] IP restrictions and fingerprinting for anti-fraud.
+- [ ] OAuth: Yandex ID, Google, GitHub.
+- [ ] Dark theme.
+- [ ] Kubernetes manifests.
+- [ ] JavaScript widget instead of iframe.
+- [ ] WebSocket for real-time statistics.
+- [ ] Mobile application -- (?)
+
