@@ -15,9 +15,9 @@ import (
 )
 
 func (h *VyborokHandler) CreatePoll(ctx context.Context, req *pb.CreatePollReq, rsp *pb.PollRsp) error {
-	userID, ok := auth.UserIDFromContext(ctx)
-	if !ok {
-		return microerr.Unauthorized("unauthorized", "auth required")
+	userID, err := mustUserID(ctx)
+	if err != nil {
+		return err
 	}
 
 	questions := make([]poll.CreateQuestionInput, 0, len(req.Questions))
@@ -91,15 +91,68 @@ func (h *VyborokHandler) ListPolls(ctx context.Context, req *pb.ListPollsReq, rs
 }
 
 func (h *VyborokHandler) UpdatePoll(ctx context.Context, req *pb.UpdatePollReq, rsp *pb.PollRsp) error {
-	return microerr.InternalServerError("not_implemented", "UpdatePoll is not implemented yet")
+	userID, err := mustUserID(ctx)
+	if err != nil {
+		return err
+	}
+
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return microerr.BadRequest("invalid_input", "invalid poll id")
+	}
+
+	p, err := h.poll.Update(ctx, id, userID, poll.UpdateInput{
+		Title:        req.Title,
+		Description:  req.Description,
+		Anonymous:    req.Anonymous,
+		AnonymousSet: req.AnonymousSet,
+	})
+	if err != nil {
+		h.logger.Error("update poll failed", "err", err, "user_id", userID, "poll_id", id)
+		return mapPollError(err)
+	}
+
+	rsp.Poll = toPoll(p)
+	return nil
 }
 
 func (h *VyborokHandler) DeletePoll(ctx context.Context, req *pb.DeletePollReq, rsp *pb.DeletePollRsp) error {
-	return microerr.InternalServerError("not_implemented", "DeletePoll is not implemented yet")
+	userID, err := mustUserID(ctx)
+	if err != nil {
+		return err
+	}
+
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return microerr.BadRequest("invalid_input", "invalid poll id")
+	}
+
+	if err := h.poll.Delete(ctx, id, userID); err != nil {
+		h.logger.Error("delete poll failed", "err", err, "user_id", userID, "poll_id", id)
+		return mapPollError(err)
+	}
+	return nil
 }
 
 func (h *VyborokHandler) ClosePoll(ctx context.Context, req *pb.ClosePollReq, rsp *pb.PollRsp) error {
-	return microerr.InternalServerError("not_implemented", "ClosePoll is not implemented yet")
+	userID, err := mustUserID(ctx)
+	if err != nil {
+		return err
+	}
+
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return microerr.BadRequest("invalid_input", "invalid poll id")
+	}
+
+	p, err := h.poll.Close(ctx, id, userID)
+	if err != nil {
+		h.logger.Error("close poll failed", "err", err, "user_id", userID, "poll_id", id)
+		return mapPollError(err)
+	}
+
+	rsp.Poll = toPoll(p)
+	return nil
 }
 
 // --- helpers ---
@@ -186,7 +239,7 @@ func mapPollError(err error) error {
 	case errors.Is(err, poll.ErrForbidden):
 		return microerr.Forbidden("forbidden", "forbidden")
 	case errors.Is(err, poll.ErrPollClosed):
-		return microerr.BadRequest("poll_closed", "poll is closed")
+		return microerr.Conflict("poll_closed", "poll is closed")
 	default:
 		return microerr.InternalServerError("internal_error", "something went wrong")
 	}

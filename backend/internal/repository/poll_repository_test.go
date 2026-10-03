@@ -474,3 +474,124 @@ func TestPollRepository_ListByUser_QuestionCount(t *testing.T) {
 		t.Errorf("1-question poll: QuestionCount got %d, want 1", got)
 	}
 }
+
+func TestPollRepository_Close(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	userRepo := NewUserRepository(db)
+	pollRepo := NewPollRepository(db)
+
+	u := newUser()
+	if err := userRepo.Create(ctx, u); err != nil {
+		t.Fatalf("create user: %v", err)
+	}
+	defer cleanup(t, db, u.ID)
+
+	p := newPoll(u.ID)
+	if err := pollRepo.Create(ctx, p); err != nil {
+		t.Fatalf("create poll: %v", err)
+	}
+
+	if err := pollRepo.Close(ctx, p.ID, u.ID); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	got, err := pollRepo.GetByID(ctx, p.ID)
+	if err != nil {
+		t.Fatalf("get by id: %v", err)
+	}
+	if got.Status != models.PollStatusClosed {
+		t.Errorf("status: got %q, want %q", got.Status, models.PollStatusClosed)
+	}
+	if got.Title != p.Title {
+		t.Errorf("title must survive close: got %q, want %q", got.Title, p.Title)
+	}
+}
+
+func TestPollRepository_Close_Idempotent(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	userRepo := NewUserRepository(db)
+	pollRepo := NewPollRepository(db)
+
+	u := newUser()
+	if err := userRepo.Create(ctx, u); err != nil {
+		t.Fatalf("create user: %v", err)
+	}
+	defer cleanup(t, db, u.ID)
+
+	p := newPoll(u.ID)
+	if err := pollRepo.Create(ctx, p); err != nil {
+		t.Fatalf("create poll: %v", err)
+	}
+
+	if err := pollRepo.Close(ctx, p.ID, u.ID); err != nil {
+		t.Fatalf("close #1: %v", err)
+	}
+	if err := pollRepo.Close(ctx, p.ID, u.ID); err != nil {
+		t.Fatalf("close #2 (idempotent): %v", err)
+	}
+
+	got, err := pollRepo.GetByID(ctx, p.ID)
+	if err != nil {
+		t.Fatalf("get by id: %v", err)
+	}
+	if got.Status != models.PollStatusClosed {
+		t.Errorf("status after double close: got %q, want %q", got.Status, models.PollStatusClosed)
+	}
+}
+
+func TestPollRepository_Close_WrongOwner(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	userRepo := NewUserRepository(db)
+	pollRepo := NewPollRepository(db)
+
+	owner := newUser()
+	if err := userRepo.Create(ctx, owner); err != nil {
+		t.Fatalf("create owner: %v", err)
+	}
+	defer cleanup(t, db, owner.ID)
+
+	other := newUser()
+	if err := userRepo.Create(ctx, other); err != nil {
+		t.Fatalf("create other: %v", err)
+	}
+	defer cleanup(t, db, other.ID)
+
+	p := newPoll(owner.ID)
+	if err := pollRepo.Create(ctx, p); err != nil {
+		t.Fatalf("create poll: %v", err)
+	}
+
+	err := pollRepo.Close(ctx, p.ID, other.ID)
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound when wrong owner, got %v", err)
+	}
+
+	got, err := pollRepo.GetByID(ctx, p.ID)
+	if err != nil {
+		t.Fatalf("get by id: %v", err)
+	}
+	if got.Status != models.PollStatusActive {
+		t.Errorf("poll must stay active, got %q", got.Status)
+	}
+}
+
+func TestPollRepository_Close_NotFound(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	pollRepo := NewPollRepository(db)
+
+	err := pollRepo.Close(context.Background(), uuid.New(), uuid.New())
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for random UUID, got %v", err)
+	}
+}

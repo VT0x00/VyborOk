@@ -742,3 +742,382 @@ func TestService_ListByUser_NilUser(t *testing.T) {
 		t.Errorf("expected ErrInvalidInput for nil user, got %v", err)
 	}
 }
+
+// createTestPoll creates a full valid poll (4 question types) for userID.
+func createTestPoll(t *testing.T, svc *Service, ctx context.Context, userID uuid.UUID) *models.Poll {
+	t.Helper()
+	p, err := svc.Create(ctx, validInput(userID))
+	if err != nil {
+		t.Fatalf("create poll: %v", err)
+	}
+	return p
+}
+
+func TestService_Update_TitleOnly(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+	origDesc := p.Description
+	origQuestions := len(p.Questions)
+
+	updated, err := svc.Update(ctx, p.ID, owner, UpdateInput{Title: "Новый заголовок"})
+	if err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	if updated.Title != "Новый заголовок" {
+		t.Errorf("title: got %q", updated.Title)
+	}
+	if updated.Description != origDesc {
+		t.Errorf("description must not change: got %q, want %q", updated.Description, origDesc)
+	}
+	if updated.Anonymous {
+		t.Error("anonymous must not change")
+	}
+	if len(updated.Questions) != origQuestions {
+		t.Errorf("questions: got %d, want %d", len(updated.Questions), origQuestions)
+	}
+
+	got, err := svc.GetByID(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("get after update: %v", err)
+	}
+	if got.Title != "Новый заголовок" {
+		t.Errorf("persisted title: got %q", got.Title)
+	}
+	if got.Description != origDesc {
+		t.Errorf("persisted description: got %q, want %q", got.Description, origDesc)
+	}
+}
+
+func TestService_Update_NothingChanged(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	updated, err := svc.Update(ctx, p.ID, owner, UpdateInput{})
+	if err != nil {
+		t.Fatalf("update with empty input: %v", err)
+	}
+	if updated.Title != p.Title {
+		t.Errorf("title: got %q, want %q", updated.Title, p.Title)
+	}
+	if updated.Description != p.Description {
+		t.Errorf("description: got %q, want %q", updated.Description, p.Description)
+	}
+	if updated.Anonymous != p.Anonymous {
+		t.Errorf("anonymous: got %v, want %v", updated.Anonymous, p.Anonymous)
+	}
+}
+
+func TestService_Update_AnonymousSetTrue(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner) // anonymous == false
+
+	on, err := svc.Update(ctx, p.ID, owner, UpdateInput{Anonymous: true, AnonymousSet: true})
+	if err != nil {
+		t.Fatalf("update to anonymous: %v", err)
+	}
+	if !on.Anonymous {
+		t.Error("anonymous must be true after Anonymous=true, AnonymousSet=true")
+	}
+
+	off, err := svc.Update(ctx, p.ID, owner, UpdateInput{Anonymous: false, AnonymousSet: true})
+	if err != nil {
+		t.Fatalf("update to non-anonymous: %v", err)
+	}
+	if off.Anonymous {
+		t.Error("anonymous must be false after Anonymous=false, AnonymousSet=true")
+	}
+}
+
+func TestService_Update_AnonymousSetFalse(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner) // anonymous == false
+
+	updated, err := svc.Update(ctx, p.ID, owner, UpdateInput{Anonymous: true, AnonymousSet: false})
+	if err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	if updated.Anonymous {
+		t.Error("anonymous must not change when AnonymousSet=false")
+	}
+}
+
+func TestService_Update_TitleTooLong(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	_, err := svc.Update(ctx, p.ID, owner, UpdateInput{Title: strings.Repeat("x", 256)})
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput for 256-char title, got %v", err)
+	}
+}
+
+func TestService_Update_WrongOwner(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	other := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	_, err := svc.Update(ctx, p.ID, other, UpdateInput{Title: "Чужое обновление"})
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for foreign poll, got %v", err)
+	}
+
+	got, err := svc.GetByID(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if got.Title != p.Title {
+		t.Errorf("title must not change: got %q, want %q", got.Title, p.Title)
+	}
+}
+
+func TestService_Update_NotFound(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+
+	owner := newTestUser(t, db)
+	_, err := svc.Update(context.Background(), uuid.New(), owner, UpdateInput{Title: "x"})
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for random UUID, got %v", err)
+	}
+}
+
+func TestService_Update_PollClosed(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if _, err := svc.Close(ctx, p.ID, owner); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	_, err := svc.Update(ctx, p.ID, owner, UpdateInput{Title: "Поздно"})
+	if !errors.Is(err, ErrPollClosed) {
+		t.Errorf("expected ErrPollClosed, got %v", err)
+	}
+}
+
+func TestService_Delete_Active(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if err := svc.Delete(ctx, p.ID, owner); err != nil {
+		t.Fatalf("delete: %v", err)
+	}
+
+	if _, err := svc.GetByID(ctx, p.ID, owner); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound after delete, got %v", err)
+	}
+}
+
+func TestService_Delete_Closed(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+	if _, err := svc.Close(ctx, p.ID, owner); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	if err := svc.Delete(ctx, p.ID, owner); err != nil {
+		t.Fatalf("delete closed poll: %v", err)
+	}
+
+	if _, err := svc.GetByID(ctx, p.ID, owner); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound after delete, got %v", err)
+	}
+}
+
+func TestService_Delete_WrongOwner(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	other := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if err := svc.Delete(ctx, p.ID, other); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for foreign poll, got %v", err)
+	}
+
+	if _, err := svc.GetByID(ctx, p.ID, owner); err != nil {
+		t.Errorf("poll must still exist, got: %v", err)
+	}
+}
+
+func TestService_Delete_NotFound(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+
+	owner := newTestUser(t, db)
+	if err := svc.Delete(context.Background(), uuid.New(), owner); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for random UUID, got %v", err)
+	}
+}
+
+func TestService_Delete_Twice(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if err := svc.Delete(ctx, p.ID, owner); err != nil {
+		t.Fatalf("delete #1: %v", err)
+	}
+	if err := svc.Delete(ctx, p.ID, owner); !errors.Is(err, ErrNotFound) {
+		t.Errorf("delete #2: expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestService_Close_Active(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	closed, err := svc.Close(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("close: %v", err)
+	}
+	if closed.Status != models.PollStatusClosed {
+		t.Errorf("status: got %q, want %q", closed.Status, models.PollStatusClosed)
+	}
+	if len(closed.Questions) != len(p.Questions) {
+		t.Errorf("questions: got %d, want %d", len(closed.Questions), len(p.Questions))
+	}
+
+	got, err := svc.GetByID(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("get after close: %v", err)
+	}
+	if got.Status != models.PollStatusClosed {
+		t.Errorf("persisted status: got %q, want %q", got.Status, models.PollStatusClosed)
+	}
+}
+
+func TestService_Close_Idempotent(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if _, err := svc.Close(ctx, p.ID, owner); err != nil {
+		t.Fatalf("close #1: %v", err)
+	}
+	second, err := svc.Close(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("close #2 (idempotent): %v", err)
+	}
+	if second.Status != models.PollStatusClosed {
+		t.Errorf("status after second close: got %q, want %q", second.Status, models.PollStatusClosed)
+	}
+}
+
+func TestService_Close_WrongOwner(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	other := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if _, err := svc.Close(ctx, p.ID, other); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for foreign poll, got %v", err)
+	}
+
+	got, err := svc.GetByID(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if got.Status != models.PollStatusActive {
+		t.Errorf("poll must stay active, got %q", got.Status)
+	}
+}
+
+func TestService_Close_NotFound(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+
+	owner := newTestUser(t, db)
+	if _, err := svc.Close(context.Background(), uuid.New(), owner); !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound for random UUID, got %v", err)
+	}
+}
+
+func TestService_Close_ThenGetPoll_NonOwner(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	owner := newTestUser(t, db)
+	viewer := newTestUser(t, db)
+	p := createTestPoll(t, svc, ctx, owner)
+
+	if _, err := svc.Close(ctx, p.ID, owner); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	// Owner still sees the full poll.
+	full, err := svc.GetByID(ctx, p.ID, owner)
+	if err != nil {
+		t.Fatalf("owner get: %v", err)
+	}
+	if full.Status != models.PollStatusClosed {
+		t.Errorf("owner view status: got %q, want %q", full.Status, models.PollStatusClosed)
+	}
+	if len(full.Questions) != len(p.Questions) {
+		t.Errorf("owner view questions: got %d, want %d", len(full.Questions), len(p.Questions))
+	}
+
+	// Non-owner (public profile) sees the stripped structure (spec 0025, R4).
+	stripped, err := svc.GetByID(ctx, p.ID, viewer)
+	if err != nil {
+		t.Fatalf("viewer get: %v", err)
+	}
+	if stripped.Status != models.PollStatusClosed {
+		t.Errorf("viewer view status: got %q, want %q", stripped.Status, models.PollStatusClosed)
+	}
+	if len(stripped.Questions) != len(p.Questions) {
+		t.Errorf("viewer view questions: got %d, want %d", len(stripped.Questions), len(p.Questions))
+	}
+}

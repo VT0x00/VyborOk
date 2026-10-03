@@ -94,6 +94,97 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*models.Poll, err
 	return p, nil
 }
 
+// UpdateInput carries the mutable fields of a poll.
+// Empty Title/Description and AnonymousSet == false mean "leave unchanged"
+// (partial-update semantics, same as auth.UpdateProfile).
+type UpdateInput struct {
+	Title        string
+	Description  string
+	Anonymous    bool
+	AnonymousSet bool
+}
+
+// Update modifies title/description/anonymous on an active poll owned by
+// userID. Questions and options are immutable (constitution §8).
+// Only the owner can update; a foreign poll surfaces as ErrNotFound.
+func (s *Service) Update(ctx context.Context, id, userID uuid.UUID, in UpdateInput) (*models.Poll, error) {
+	poll, err := s.polls.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get poll: %w", err)
+	}
+
+	if poll.UserID != userID {
+		// do not leak existence of other users' polls
+		return nil, ErrNotFound
+	}
+	if poll.Status == models.PollStatusClosed {
+		return nil, ErrPollClosed
+	}
+
+	if in.Title != "" {
+		title := strings.TrimSpace(in.Title)
+		if err := validateTextLen(title, 1, maxTitleLen, "title"); err != nil {
+			return nil, err
+		}
+		poll.Title = title
+	}
+	if in.Description != "" {
+		description := strings.TrimSpace(in.Description)
+		if err := validateTextLen(description, 0, maxDescriptionLen, "description"); err != nil {
+			return nil, err
+		}
+		poll.Description = description
+	}
+	if in.AnonymousSet {
+		poll.Anonymous = in.Anonymous
+	}
+
+	if err := s.polls.Update(ctx, poll); err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("update poll: %w", err)
+	}
+	return poll, nil
+}
+
+// Delete removes a poll owned by userID. Cascades to questions and options.
+// Works on polls in any status.
+func (s *Service) Delete(ctx context.Context, id, userID uuid.UUID) error {
+	if err := s.polls.Delete(ctx, id, userID); err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("delete poll: %w", err)
+	}
+	return nil
+}
+
+// Close transitions an active poll to closed. Idempotent: calling it on an
+// already-closed poll is a successful no-op. Only the owner can close;
+// a foreign poll surfaces as ErrNotFound.
+func (s *Service) Close(ctx context.Context, id, userID uuid.UUID) (*models.Poll, error) {
+	if err := s.polls.Close(ctx, id, userID); err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("close poll: %w", err)
+	}
+
+	// second query: return the full poll with questions loaded
+	poll, err := s.polls.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get poll: %w", err)
+	}
+	return poll, nil
+}
+
 // GetByID returns the poll with all questions and options.
 // viewerID == uuid.Nil means anonymous caller.
 //

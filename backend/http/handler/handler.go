@@ -24,6 +24,16 @@ func New(authSvc *auth.Service, pollSvc *poll.Service, logger *slog.Logger) *Vyb
 	return &VyborokHandler{auth: authSvc, poll: pollSvc, logger: logger}
 }
 
+// mustUserID extracts the authenticated user id from the context or
+// returns a 401 micro error. Used by every protected RPC.
+func mustUserID(ctx context.Context) (uuid.UUID, error) {
+	userID, ok := auth.UserIDFromContext(ctx)
+	if !ok {
+		return uuid.Nil, microerr.Unauthorized("unauthorized", "auth required")
+	}
+	return userID, nil
+}
+
 func (h *VyborokHandler) Health(ctx context.Context, req *pb.HealthReq, rsp *pb.HealthRsp) error {
 	rsp.Status = "ok"
 	return nil
@@ -62,9 +72,9 @@ func (h *VyborokHandler) Login(ctx context.Context, req *pb.LoginReq, rsp *pb.Lo
 }
 
 func (h *VyborokHandler) GetMe(ctx context.Context, req *pb.GetMeReq, rsp *pb.ProfileRsp) error {
-	userID, ok := auth.UserIDFromContext(ctx)
-	if !ok {
-		return microerr.Unauthorized("unauthorized", "auth required")
+	userID, err := mustUserID(ctx)
+	if err != nil {
+		return err
 	}
 
 	user, err := h.auth.GetMe(ctx, userID)
@@ -91,9 +101,9 @@ func (h *VyborokHandler) Refresh(ctx context.Context, req *pb.RefreshReq, rsp *p
 }
 
 func (h *VyborokHandler) UpdateProfile(ctx context.Context, req *pb.UpdateProfileReq, rsp *pb.ProfileRsp) error {
-	userID, ok := auth.UserIDFromContext(ctx)
-	if !ok {
-		return microerr.Unauthorized("unauthorized", "auth required")
+	userID, err := mustUserID(ctx)
+	if err != nil {
+		return err
 	}
 
 	user, err := h.auth.UpdateProfile(ctx, userID, auth.UpdateProfileInput{

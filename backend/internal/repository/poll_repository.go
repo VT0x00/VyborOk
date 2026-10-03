@@ -159,6 +159,27 @@ func (r *PollRepository) Delete(ctx context.Context, id, userID uuid.UUID) error
 	return nil
 }
 
+// Close sets status='closed' on a poll owned by userID. Idempotent:
+// calling it on an already-closed poll is a successful no-op
+// (updated_at is refreshed). On 0 rows affected → ErrNotFound.
+func (r *PollRepository) Close(ctx context.Context, id, userID uuid.UUID) error {
+	res, err := r.db.ExecContext(ctx,
+		`UPDATE polls SET status = $3, updated_at = NOW() WHERE id = $1 AND user_id = $2`,
+		id, userID, models.PollStatusClosed,
+	)
+	if err != nil {
+		return fmt.Errorf("close poll: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected: %w", err)
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 func (r *PollRepository) loadQuestions(ctx context.Context, pollID uuid.UUID) ([]models.Question, error) {
 	const qQuery = `
 		SELECT id, poll_id, type, title, description, position,
