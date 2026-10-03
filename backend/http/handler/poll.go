@@ -11,6 +11,7 @@ import (
 	"github.com/VT0x00/vyborok/internal/auth"
 	"github.com/VT0x00/vyborok/internal/models"
 	"github.com/VT0x00/vyborok/internal/poll"
+	"github.com/google/uuid"
 )
 
 func (h *VyborokHandler) CreatePoll(ctx context.Context, req *pb.CreatePollReq, rsp *pb.PollRsp) error {
@@ -49,7 +50,25 @@ func (h *VyborokHandler) CreatePoll(ctx context.Context, req *pb.CreatePollReq, 
 }
 
 func (h *VyborokHandler) GetPoll(ctx context.Context, req *pb.GetPollReq, rsp *pb.PollRsp) error {
-	return microerr.InternalServerError("not_implemented", "GetPoll is not implemented yet")
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		h.logger.Error("get poll failed: bad id", "err", err, "poll_id", req.Id)
+		return microerr.BadRequest("invalid_input", "invalid poll id")
+	}
+
+	var viewerID uuid.UUID
+	if uid, ok := auth.UserIDFromContext(ctx); ok {
+		viewerID = uid
+	}
+
+	p, err := h.poll.GetByID(ctx, id, viewerID)
+	if err != nil {
+		h.logger.Error("get poll failed", "err", err, "poll_id", req.Id)
+		return mapPollError(err)
+	}
+
+	rsp.Poll = toPoll(p)
+	return nil
 }
 
 func (h *VyborokHandler) ListPolls(ctx context.Context, req *pb.ListPollsReq, rsp *pb.ListPollsRsp) error {
