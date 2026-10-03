@@ -54,7 +54,7 @@ func main() {
 	pollRepo := repository.NewPollRepository(db)
 	jwtMgr := auth.NewJWTManager(cfg.JWT.Secret, cfg.JWT.Issuer, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)
 	authSvc := auth.NewService(userRepo, jwtMgr)
-	pollSvc := poll.NewService(pollRepo)
+	pollSvc := poll.NewService(pollRepo, userRepo)
 	h := handler.New(authSvc, pollSvc, logger)
 
 	// --- micro HTTP-сервер ---

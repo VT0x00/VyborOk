@@ -25,10 +25,11 @@ const (
 
 type Service struct {
 	polls *repository.PollRepository
+	users *repository.UserRepository
 }
 
-func NewService(polls *repository.PollRepository) *Service {
-	return &Service{polls: polls}
+func NewService(polls *repository.PollRepository, users *repository.UserRepository) *Service {
+	return &Service{polls: polls, users: users}
 }
 
 type CreateInput struct {

@@ -34,8 +34,9 @@ func openTestDB(t *testing.T) *sql.DB {
 func newTestService(t *testing.T) (*Service, *sql.DB) {
 	t.Helper()
 	db := openTestDB(t)
-	repo := repository.NewPollRepository(db)
-	return NewService(repo), db
+	pollRepo := repository.NewPollRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	return NewService(pollRepo, userRepo), db
 }
 
 func uniqueSuffix() string {
