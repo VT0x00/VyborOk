@@ -409,3 +409,68 @@ func TestPollRepository_Delete_WrongOwner(t *testing.T) {
 		t.Errorf("poll should still exist, got err: %v", err)
 	}
 }
+
+func TestPollRepository_ListByUser_QuestionCount(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	userRepo := NewUserRepository(db)
+	pollRepo := NewPollRepository(db)
+
+	u := newUser()
+	if err := userRepo.Create(ctx, u); err != nil {
+		t.Fatalf("create user: %v", err)
+	}
+	defer cleanup(t, db, u.ID)
+
+	p3 := newPoll(u.ID) // 3 questions
+	if err := pollRepo.Create(ctx, p3); err != nil {
+		t.Fatalf("create poll (3 questions): %v", err)
+	}
+
+	p1 := &models.Poll{
+		UserID:      u.ID,
+		Title:       "One question poll " + uuid.NewString()[:8],
+		Description: "poll with a single question",
+		Status:      models.PollStatusActive,
+		Anonymous:   false,
+		Questions: []models.Question{
+			{
+				Type:     models.QuestionTypeSingle,
+				Title:    "Only one",
+				Position: 0,
+				Options: []models.Option{
+					{Text: "A", Position: 0},
+					{Text: "B", Position: 1},
+				},
+			},
+		},
+	}
+	if err := pollRepo.Create(ctx, p1); err != nil {
+		t.Fatalf("create poll (1 question): %v", err)
+	}
+
+	polls, err := pollRepo.ListByUser(ctx, u.ID, 10, 0)
+	if err != nil {
+		t.Fatalf("list by user: %v", err)
+	}
+	if len(polls) != 2 {
+		t.Fatalf("polls count: got %d, want 2", len(polls))
+	}
+
+	counts := make(map[string]int, len(polls))
+	for i := range polls {
+		p := &polls[i]
+		if len(p.Questions) != 0 {
+			t.Errorf("poll %q: Questions must stay empty in list, got %d", p.Title, len(p.Questions))
+		}
+		counts[p.Title] = p.QuestionCount
+	}
+	if got := counts[p3.Title]; got != 3 {
+		t.Errorf("3-question poll: QuestionCount got %d, want 3", got)
+	}
+	if got := counts[p1.Title]; got != 1 {
+		t.Errorf("1-question poll: QuestionCount got %d, want 1", got)
+	}
+}

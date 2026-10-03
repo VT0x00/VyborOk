@@ -28,7 +28,7 @@
 - [x] **Day 23.** Repository for questions and options (nested).
 - [x] **Day 24.** RPC `CreatePoll` (POST /polls) — create with questions and options.
 - [x] **Day 25.** RPC `GetPoll` (GET /polls/{id}).
-- [ ] **Day 26.** RPC `ListPolls` (GET /polls) — with pagination.
+- [x] **Day 26.** RPC `ListPolls` (GET /polls) — with pagination.
 - [ ] **Day 27.** RPC `UpdatePoll`, `DeletePoll`, `ClosePoll`.
 - [ ] **Day 28.** Repository and poll service tests.
 

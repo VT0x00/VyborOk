@@ -5,21 +5,21 @@
 
 ## Checklist
 
-- [ ] **T1 — Add `QuestionCount` field to `models.Poll`.**
+- [x] **T1 — Add `QuestionCount` field to `models.Poll`.**
   File: `internal/models/poll.go`.
   Add `QuestionCount int` with a doc comment: "Populated only by list
   methods. Use len(Questions) after GetByID."
   Expected: `go build ./...` green; existing tests unaffected (nothing
   reads the field yet).
 
-- [ ] **T2 — Extend `PollRepository.ListByUser` with question count.**
+- [x] **T2 — Extend `PollRepository.ListByUser` with question count.**
   File: `internal/repository/poll_repository.go`.
   Replace SQL with the correlated-subquery version from `design.md`.
   Add `&p.QuestionCount` to the existing `rows.Scan(...)`.
   Signature unchanged.
   Expected: `go build ./...` green.
 
-- [ ] **T3 — Repository test for `QuestionCount`.**
+- [x] **T3 — Repository test for `QuestionCount`.**
   File: `internal/repository/poll_repository_test.go`.
   Add `TestPollRepository_ListByUser_QuestionCount`:
     - create user; create 2 polls: one with 3 questions, one with 1 question.
@@ -29,7 +29,7 @@
     - assert `Questions` is empty (len == 0) on both.
   Expected: `make test-all` green.
 
-- [ ] **T4 — Add `ListByUser` to `internal/poll.Service`.**
+- [x] **T4 — Add `ListByUser` to `internal/poll.Service`.**
   File: `internal/poll/service.go`.
   - Add consts `defaultListLimit = 20`, `maxListLimit = 100`.
   - Implement `ListByUser(ctx, userID, limit, offset)`:
@@ -39,7 +39,7 @@
     - return the slice.
   Expected: `go build ./...` green.
 
-- [ ] **T5 — Service tests for `ListByUser`.**
+- [x] **T5 — Service tests for `ListByUser`.**
   File: `internal/poll/service_test.go`.
   Add a helper `createN(t, svc, userID, n)` that creates n polls with
   distinct titles and sleeps 2 ms between each (for deterministic
@@ -59,7 +59,7 @@
           covered by repository test if needed.
   Expected: `make test-all` green.
 
-- [ ] **T6 — Implement handler `ListPolls`.**
+- [x] **T6 — Implement handler `ListPolls`.**
   File: `http/handler/poll.go`.
   - Replace the `not_implemented` stub.
   - Require `auth.UserIDFromContext` (R1).
@@ -68,7 +68,7 @@
   - Add `toPollCard` helper in the same file.
   Expected: `go build ./...` green.
 
-- [ ] **T7 — Manual verification via curl.**
+- [x] **T7 — Manual verification via curl.**
   Setup: register a user, create 5 polls with distinct titles, wait a
   second between creations (or use `psql` to set `created_at`). Then:
     - `GET /polls` without auth → 401 (R1).
@@ -83,7 +83,7 @@
     - Check `question_count` on a poll created with 3 questions → 3 (R10).
   Expected: every line matches `requirements.md`.
 
-- [ ] **T8 — Full test run + archive.**
+- [x] **T8 — Full test run + archive.**
   - `go vet ./...`
   - `make test-all` — green with `-race -count=1`.
   - Update `TODO.md` / `TODO.ru.md`: mark Day 26 done.

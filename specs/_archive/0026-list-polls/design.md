@@ -169,7 +169,10 @@ func toPollCard(p *models.Poll) *pb.PollCard {
 ```
 
 **Empty list handling.** `rsp.Polls` is initialized as an empty non-nil
-slice, so JSON serialization returns `[]` (R2), not `null`.
+slice, so the service returns an empty slice, not `nil`. Note: the
+generated json tag is `"polls,omitempty"`, so plain `encoding/json`
+drops empty slices anyway — the wire-level `{"polls":[]}` (R2) is
+guaranteed by the thin `emptyPollsCodec` wrapper registered in `main.go`.
 
 ## Alternatives Considered
 

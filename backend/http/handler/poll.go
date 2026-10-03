@@ -72,7 +72,22 @@ func (h *VyborokHandler) GetPoll(ctx context.Context, req *pb.GetPollReq, rsp *p
 }
 
 func (h *VyborokHandler) ListPolls(ctx context.Context, req *pb.ListPollsReq, rsp *pb.ListPollsRsp) error {
-	return microerr.InternalServerError("not_implemented", "ListPolls is not implemented yet")
+	userID, ok := auth.UserIDFromContext(ctx)
+	if !ok {
+		return microerr.Unauthorized("unauthorized", "auth required")
+	}
+
+	polls, err := h.poll.ListByUser(ctx, userID, int(req.Limit), int(req.Offset))
+	if err != nil {
+		h.logger.Error("list polls failed", "err", err, "user_id", userID)
+		return mapPollError(err)
+	}
+
+	rsp.Polls = make([]*pb.PollCard, 0, len(polls))
+	for i := range polls {
+		rsp.Polls = append(rsp.Polls, toPollCard(&polls[i]))
+	}
+	return nil
 }
 
 func (h *VyborokHandler) UpdatePoll(ctx context.Context, req *pb.UpdatePollReq, rsp *pb.PollRsp) error {
@@ -116,6 +131,21 @@ func toPoll(p *models.Poll) *pb.Poll {
 		out.Questions = append(out.Questions, toQuestion(&p.Questions[i]))
 	}
 	return out
+}
+
+func toPollCard(p *models.Poll) *pb.PollCard {
+	if p == nil {
+		return nil
+	}
+	return &pb.PollCard{
+		Id:            p.ID.String(),
+		Title:         p.Title,
+		Description:   p.Description,
+		Status:        string(p.Status),
+		Anonymous:     p.Anonymous,
+		QuestionCount: int32(p.QuestionCount),
+		CreatedAt:     p.CreatedAt.Format(time.RFC3339),
+	}
 }
 
 func toQuestion(q *models.Question) *pb.Question {

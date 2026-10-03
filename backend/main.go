@@ -16,6 +16,7 @@ import (
 
 	jsoncodec "go.unistack.org/micro-codec-json/v3"
 	httpsrv "go.unistack.org/micro-server-http/v3"
+	"go.unistack.org/micro/v3/codec"
 	"go.unistack.org/micro/v3/server"
 
 	"github.com/joho/godotenv"
@@ -61,7 +62,7 @@ func main() {
 	srv := httpsrv.NewServer(
 		server.Name("vyborok"),
 		server.Address(":"+cfg.App.Port),
-		server.Codec("application/json", jsoncodec.NewCodec()),
+		server.Codec("application/json", emptyPollsCodec{inner: jsoncodec.NewCodec()}),
 		server.Hooks(jwtMgr.Middleware()),
 	)
 
@@ -96,3 +97,24 @@ func setupLogger() *slog.Logger {
 	}
 	return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 }
+
+// emptyPollsCodec оборачивает JSON-кодек и сериализует пустой ListPollsRsp
+// как {"polls":[]}, а не как {}.
+// У сгенерированного поля json-тег "polls,omitempty", поэтому
+// encoding/json отбрасывает пустые срезы (спека 0026, R2).
+type emptyPollsCodec struct {
+	inner codec.Codec
+}
+
+func (c emptyPollsCodec) Marshal(v interface{}, opts ...codec.Option) ([]byte, error) {
+	if rsp, ok := v.(*pb.ListPollsRsp); ok && len(rsp.Polls) == 0 {
+		return []byte(`{"polls":[]}`), nil
+	}
+	return c.inner.Marshal(v, opts...)
+}
+
+func (c emptyPollsCodec) Unmarshal(b []byte, v interface{}, opts ...codec.Option) error {
+	return c.inner.Unmarshal(b, v, opts...)
+}
+
+func (c emptyPollsCodec) String() string { return "json" }

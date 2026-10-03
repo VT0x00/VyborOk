@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -523,5 +525,220 @@ func assertFullPoll(t *testing.T, got *models.Poll, wantID, wantOwner uuid.UUID)
 		if len(q.Options) != wantOpts[i] {
 			t.Errorf("q%d options: got %d, want %d", i, len(q.Options), wantOpts[i])
 		}
+	}
+}
+
+// createN creates n polls with distinct titles for userID, sleeping 2 ms
+// between inserts so created_at DESC ordering is deterministic.
+// Returns the polls in creation order (oldest first).
+func createN(t *testing.T, svc *Service, userID uuid.UUID, n int) []*models.Poll {
+	t.Helper()
+	ctx := context.Background()
+	created := make([]*models.Poll, 0, n)
+	for i := 0; i < n; i++ {
+		p, err := svc.Create(ctx, CreateInput{
+			UserID:    userID,
+			Title:     fmt.Sprintf("ListPolls %s-%02d", uniqueSuffix(), i),
+			Anonymous: false,
+			Questions: []CreateQuestionInput{
+				{Type: "single", Title: "q1", Options: []string{"A", "B"}},
+			},
+		})
+		if err != nil {
+			t.Fatalf("create poll #%d: %v", i, err)
+		}
+		created = append(created, p)
+		if i < n-1 {
+			time.Sleep(2 * time.Millisecond)
+		}
+	}
+	return created
+}
+
+// expectAllNewestFirst asserts that got equals created in reverse order
+// (newest first) and that list items carry no nested questions.
+func expectAllNewestFirst(t *testing.T, got []models.Poll, created []*models.Poll) {
+	t.Helper()
+	if len(got) != len(created) {
+		t.Fatalf("count: got %d, want %d", len(got), len(created))
+	}
+	for i := range got {
+		want := created[len(created)-1-i]
+		if got[i].ID != want.ID {
+			t.Errorf("position %d: got %q, want %q (newest first)", i, got[i].Title, want.Title)
+		}
+		if len(got[i].Questions) != 0 {
+			t.Errorf("poll %q: Questions must be empty in list, got %d", got[i].Title, len(got[i].Questions))
+		}
+	}
+}
+
+func TestService_ListByUser(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	userID := newTestUser(t, db)
+	created := createN(t, svc, userID, 5) // created[0] oldest → created[4] newest
+
+	t.Run("R2: user with 0 polls -> empty non-nil slice", func(t *testing.T) {
+		emptyUser := newTestUser(t, db)
+		got, err := svc.ListByUser(ctx, emptyUser, 0, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		if got == nil {
+			t.Fatal("expected non-nil empty slice, got nil")
+		}
+		if len(got) != 0 {
+			t.Errorf("expected 0 polls, got %d", len(got))
+		}
+	})
+
+	t.Run("R3: limit=20 offset=0 -> all 5, newest first", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, 20, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		expectAllNewestFirst(t, got, created)
+	})
+
+	t.Run("R4: limit=2 offset=0 -> two newest", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, 2, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		if len(got) != 2 {
+			t.Fatalf("count: got %d, want 2", len(got))
+		}
+		if got[0].ID != created[4].ID || got[1].ID != created[3].ID {
+			t.Errorf("expected two newest, got %q, %q", got[0].Title, got[1].Title)
+		}
+	})
+
+	t.Run("R5: limit=2 offset=2 -> next two (older)", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, 2, 2)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		if len(got) != 2 {
+			t.Fatalf("count: got %d, want 2", len(got))
+		}
+		if got[0].ID != created[2].ID || got[1].ID != created[1].ID {
+			t.Errorf("expected created[2], created[1] (older page), got %q, %q", got[0].Title, got[1].Title)
+		}
+	})
+
+	t.Run("R6: limit=500 -> clamped to 100, still all 5", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, 500, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		expectAllNewestFirst(t, got, created)
+	})
+
+	t.Run("R7: limit=0 -> default 20", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, 0, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		expectAllNewestFirst(t, got, created)
+	})
+
+	t.Run("R7: limit=-5 -> default 20", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, -5, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		expectAllNewestFirst(t, got, created)
+	})
+
+	t.Run("R8: offset=-1 -> treated as 0", func(t *testing.T) {
+		got, err := svc.ListByUser(ctx, userID, 20, -1)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		expectAllNewestFirst(t, got, created)
+	})
+
+	t.Run("R9: users do not see each other's polls", func(t *testing.T) {
+		userA := newTestUser(t, db)
+		userB := newTestUser(t, db)
+		createN(t, svc, userA, 3)
+		createN(t, svc, userB, 2)
+
+		gotA, err := svc.ListByUser(ctx, userA, 0, 0)
+		if err != nil {
+			t.Fatalf("list A: %v", err)
+		}
+		if len(gotA) != 3 {
+			t.Fatalf("user A: got %d polls, want 3", len(gotA))
+		}
+		for i := range gotA {
+			if gotA[i].UserID != userA {
+				t.Errorf("A sees a foreign poll: %q", gotA[i].Title)
+			}
+		}
+
+		gotB, err := svc.ListByUser(ctx, userB, 0, 0)
+		if err != nil {
+			t.Fatalf("list B: %v", err)
+		}
+		if len(gotB) != 2 {
+			t.Fatalf("user B: got %d polls, want 2", len(gotB))
+		}
+		for i := range gotB {
+			if gotB[i].UserID != userB {
+				t.Errorf("B sees a foreign poll: %q", gotB[i].Title)
+			}
+		}
+	})
+
+	t.Run("R10: poll with 3 questions -> QuestionCount == 3", func(t *testing.T) {
+		p, err := svc.Create(ctx, CreateInput{
+			UserID:    userID,
+			Title:     "Three questions " + uniqueSuffix(),
+			Anonymous: false,
+			Questions: []CreateQuestionInput{
+				{Type: "single", Title: "q1", Options: []string{"A", "B"}},
+				{Type: "scale", Title: "q2", ScaleMin: 1, ScaleMax: 5},
+				{Type: "text", Title: "q3", TextMaxLength: 100},
+			},
+		})
+		if err != nil {
+			t.Fatalf("create: %v", err)
+		}
+
+		got, err := svc.ListByUser(ctx, userID, 0, 0)
+		if err != nil {
+			t.Fatalf("list: %v", err)
+		}
+		var found *models.Poll
+		for i := range got {
+			if got[i].ID == p.ID {
+				found = &got[i]
+				break
+			}
+		}
+		if found == nil {
+			t.Fatal("created poll not found in list")
+		}
+		if found.QuestionCount != 3 {
+			t.Errorf("QuestionCount: got %d, want 3", found.QuestionCount)
+		}
+	})
+
+	// R11 (poll with 0 questions): cannot be created via the service
+	// (validation requires >= 1 question), so the zero-count path of the
+	// COUNT(*) subquery is covered at the repository level.
+}
+
+func TestService_ListByUser_NilUser(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+
+	_, err := svc.ListByUser(context.Background(), uuid.Nil, 20, 0)
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput for nil user, got %v", err)
 	}
 }

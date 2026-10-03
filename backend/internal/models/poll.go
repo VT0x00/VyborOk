@@ -36,6 +36,10 @@ type Poll struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 
+	// QuestionCount — populated only by list methods (ListByUser).
+	// Use len(Questions) after GetByID.
+	QuestionCount int
+
 	Questions []Question
 }
 

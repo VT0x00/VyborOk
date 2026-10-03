@@ -95,7 +95,8 @@ func (r *PollRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Pol
 }
 
 func (r *PollRepository) ListByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]models.Poll, error) {
-	query := `SELECT ` + pollColumns + `
+	query := `SELECT ` + pollColumns + `,
+		(SELECT COUNT(*) FROM questions q WHERE q.poll_id = polls.id) AS question_count
 		FROM polls
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -111,7 +112,7 @@ func (r *PollRepository) ListByUser(ctx context.Context, userID uuid.UUID, limit
 		var p models.Poll
 		if err := rows.Scan(
 			&p.ID, &p.UserID, &p.Title, &p.Description, &p.Status,
-			&p.Anonymous, &p.CreatedAt, &p.UpdatedAt,
+			&p.Anonymous, &p.CreatedAt, &p.UpdatedAt, &p.QuestionCount,
 		); err != nil {
 			return nil, fmt.Errorf("scan poll: %w", err)
 		}

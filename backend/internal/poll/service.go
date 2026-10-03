@@ -22,6 +22,9 @@ const (
 	maxOptionsPerQ    = 50
 	maxScaleRange     = 100
 	maxTextLen        = 5000
+
+	defaultListLimit = 20
+	maxListLimit     = 100
 )
 
 type Service struct {
@@ -135,6 +138,31 @@ func (s *Service) GetByID(ctx context.Context, id, viewerID uuid.UUID) (*models.
 	}
 
 	return stripToStructure(poll), nil
+}
+
+// ListByUser returns the user's polls, newest first, paginated.
+// limit/offset are normalized: limit <= 0 → defaultListLimit,
+// limit > maxListLimit → maxListLimit, offset < 0 → 0.
+// Returned polls have QuestionCount populated and Questions empty.
+func (s *Service) ListByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]models.Poll, error) {
+	if userID == uuid.Nil {
+		return nil, fmt.Errorf("%w: user id is required", ErrInvalidInput)
+	}
+	if limit <= 0 {
+		limit = defaultListLimit
+	}
+	if limit > maxListLimit {
+		limit = maxListLimit
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	polls, err := s.polls.ListByUser(ctx, userID, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("list polls: %w", err)
+	}
+	return polls, nil
 }
 
 // stripToStructure returns a copy of the poll that keeps only the public
