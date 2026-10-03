@@ -2,6 +2,7 @@ package poll
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"unicode/utf8"
@@ -88,6 +89,68 @@ func (s *Service) Create(ctx context.Context, in CreateInput) (*models.Poll, err
 		return nil, fmt.Errorf("create poll: %w", err)
 	}
 	return p, nil
+}
+
+// GetByID returns the poll with all questions and options.
+// viewerID == uuid.Nil means anonymous caller.
+//
+// Visibility rules:
+//   - owner: full poll, always.
+//   - non-owner / anonymous: full poll if active;
+//     stripped poll if closed and owner is public;
+//     ErrNotFound if closed and owner is private (do not leak existence).
+func (s *Service) GetByID(ctx context.Context, id, viewerID uuid.UUID) (*models.Poll, error) {
+	if id == uuid.Nil {
+		return nil, fmt.Errorf("%w: poll id is required", ErrInvalidInput)
+	}
+
+	poll, err := s.polls.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get poll: %w", err)
+	}
+
+	if viewerID == poll.UserID {
+		return poll, nil
+	}
+
+	owner, err := s.users.GetByID(ctx, poll.UserID)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			// defensive: cascade delete should have removed the poll too
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get owner: %w", err)
+	}
+
+	if poll.Status == models.PollStatusActive {
+		return poll, nil
+	}
+
+	// closed, non-owner
+	if owner.IsPrivate {
+		return nil, ErrNotFound
+	}
+
+	return stripToStructure(poll), nil
+}
+
+// stripToStructure returns a copy of the poll that keeps only the public
+// structure (questions and options). For MVP it is identical to the poll
+// itself; it is the single place Phase 4 will redact votes and stats from.
+func stripToStructure(p *models.Poll) *models.Poll {
+	out := *p
+	out.Questions = make([]models.Question, len(p.Questions))
+	for i := range p.Questions {
+		out.Questions[i] = p.Questions[i]
+		src := p.Questions[i].Options
+		dst := make([]models.Option, len(src))
+		copy(dst, src)
+		out.Questions[i].Options = dst
+	}
+	return &out
 }
 
 func buildQuestion(in CreateQuestionInput, position int) (*models.Question, error) {
