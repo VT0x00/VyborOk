@@ -8,7 +8,7 @@
 Each task = one small edit, one commit, one checkbox. Order matters:
 later tasks assume earlier ones are done.
 
-- [ ] **T1 — Refactor `poll.NewService` constructor.**
+- [x] **T1 — Refactor `poll.NewService` constructor.**
   Add `users *repository.UserRepository` as the second parameter.
   File: `internal/poll/service.go` (struct + constructor only).
   Update callers in the same commit:
@@ -17,7 +17,7 @@ later tasks assume earlier ones are done.
       both `PollRepository` and `UserRepository`.
   Expected: `go build ./...` green, `make test-all` green (nothing broken).
 
-- [ ] **T2 — Implement `Service.GetByID`.**
+- [x] **T2 — Implement `Service.GetByID`.**
   File: `internal/poll/service.go`.
   Signature: `GetByID(ctx, id, viewerID uuid.UUID) (*models.Poll, error)`.
   Logic exactly as in `design.md`:
@@ -33,7 +33,7 @@ later tasks assume earlier ones are done.
   but is the single place Phase 4 will redact stats from.
   Expected: `go build ./...` green.
 
-- [ ] **T3 — Service tests for `GetByID`.**
+- [x] **T3 — Service tests for `GetByID`.**
   File: `internal/poll/service_test.go`.
   Add helper `newTestService` already returns the service; add
   `setPrivate(t, db, userID)` helper that flips `users.is_private`.
@@ -51,7 +51,7 @@ later tasks assume earlier ones are done.
     - R1: `GetByID(ctx, uuid.Nil, ...)` → `ErrInvalidInput`.
   Expected: `make test-all` green.
 
-- [ ] **T4 — Implement handler `GetPoll`.**
+- [x] **T4 — Implement handler `GetPoll`.**
   File: `http/handler/poll.go`.
   Replace the `not_implemented` stub:
     - Parse `req.Id` with `uuid.Parse`. Parse error → `400 invalid_input`.
@@ -61,7 +61,7 @@ later tasks assume earlier ones are done.
     - On success → `rsp.Poll = toPoll(poll)`.
   Expected: `go build ./...` green.
 
-- [ ] **T5 — Manual verification via curl.**
+- [x] **T5 — Manual verification via curl.**
   Register two users (owner, viewer). Owner creates a poll (Day 24 flow).
   Commands:
     - `GET /polls/{id}` without auth → 200 full poll (R3).
@@ -76,7 +76,7 @@ later tasks assume earlier ones are done.
     - `GET /polls/{random-uuid}` → 404 not_found (R6).
   Expected: every line matches `requirements.md`.
 
-- [ ] **T6 — Full test run + cleanup.**
+- [x] **T6 — Full test run + cleanup.**
   - `go vet ./...`
   - `make test-all` — all green with `-race -count=1`.
   - Remove any debug logs added during T5.
