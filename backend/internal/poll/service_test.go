@@ -345,6 +345,183 @@ func TestService_Create_RollsBackOnRepoError(t *testing.T) {
 	}
 }
 
+// --- GetByID tests (spec 0025) ---
+
+func TestService_GetByID_InvalidID(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+
+	// R1: nil UUID is invalid input
+	_, err := svc.GetByID(context.Background(), uuid.Nil, uuid.Nil)
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput, got %v", err)
+	}
+}
+
+func TestService_GetByID_NotFound(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+
+	// R6: random UUID → ErrNotFound
+	_, err := svc.GetByID(context.Background(), uuid.New(), uuid.Nil)
+	if !errors.Is(err, ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestService_GetByID_OwnerActive(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	ownerID := newTestUser(t, db)
+	created, err := svc.Create(ctx, validInput(ownerID))
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	// R1/R2: owner fetches active poll → full data
+	got, err := svc.GetByID(ctx, created.ID, ownerID)
+	if err != nil {
+		t.Fatalf("get by id (owner): %v", err)
+	}
+	assertFullPoll(t, got, created.ID, ownerID)
+}
+
+func TestService_GetByID_ActiveVisibleToAll(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	ownerID := newTestUser(t, db)
+	otherID := newTestUser(t, db)
+	created, err := svc.Create(ctx, validInput(ownerID))
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	// R3: anonymous fetches active poll → full data
+	got, err := svc.GetByID(ctx, created.ID, uuid.Nil)
+	if err != nil {
+		t.Fatalf("get by id (anonymous): %v", err)
+	}
+	assertFullPoll(t, got, created.ID, ownerID)
+
+	// R3: other authenticated user fetches active poll → full data
+	got, err = svc.GetByID(ctx, created.ID, otherID)
+	if err != nil {
+		t.Fatalf("get by id (other user): %v", err)
+	}
+	assertFullPoll(t, got, created.ID, ownerID)
+}
+
+func TestService_GetByID_Closed(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	ownerID := newTestUser(t, db)
+	otherID := newTestUser(t, db)
+	created, err := svc.Create(ctx, validInput(ownerID))
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	// ClosePoll appears in Day 27; flip status directly for now.
+	closePoll(t, db, created.ID)
+
+	t.Run("owner gets full poll", func(t *testing.T) {
+		// R2: owner fetches closed poll → full data
+		got, err := svc.GetByID(ctx, created.ID, ownerID)
+		if err != nil {
+			t.Fatalf("get by id (owner, closed): %v", err)
+		}
+		assertFullPoll(t, got, created.ID, ownerID)
+		if got.Status != models.PollStatusClosed {
+			t.Errorf("status: got %q, want closed", got.Status)
+		}
+	})
+
+	t.Run("public owner, anonymous gets structure", func(t *testing.T) {
+		// R4: anonymous fetches closed poll with public owner → structure present
+		got, err := svc.GetByID(ctx, created.ID, uuid.Nil)
+		if err != nil {
+			t.Fatalf("get by id (anonymous, public owner): %v", err)
+		}
+		assertFullPoll(t, got, created.ID, ownerID)
+	})
+
+	t.Run("public owner, other user gets structure", func(t *testing.T) {
+		// R8: other authenticated user, closed poll, public owner → structure present
+		got, err := svc.GetByID(ctx, created.ID, otherID)
+		if err != nil {
+			t.Fatalf("get by id (other user, public owner): %v", err)
+		}
+		assertFullPoll(t, got, created.ID, ownerID)
+	})
+
+	// R7: private owner — poll is not discoverable for non-owners.
+	setPrivate(t, db, ownerID)
+
+	t.Run("private owner, anonymous gets ErrNotFound", func(t *testing.T) {
+		_, err := svc.GetByID(ctx, created.ID, uuid.Nil)
+		if !errors.Is(err, ErrNotFound) {
+			t.Errorf("expected ErrNotFound, got %v", err)
+		}
+	})
+
+	t.Run("private owner, other user gets ErrNotFound", func(t *testing.T) {
+		_, err := svc.GetByID(ctx, created.ID, otherID)
+		if !errors.Is(err, ErrNotFound) {
+			t.Errorf("expected ErrNotFound, got %v", err)
+		}
+	})
+
+	t.Run("private owner, owner still gets full poll", func(t *testing.T) {
+		// R2 exception: owner always sees their poll
+		got, err := svc.GetByID(ctx, created.ID, ownerID)
+		if err != nil {
+			t.Fatalf("get by id (owner, private+closed): %v", err)
+		}
+		assertFullPoll(t, got, created.ID, ownerID)
+	})
+}
+
 // --- helpers ---
 
 func intPtr(v int) *int { return &v }
+
+func setPrivate(t *testing.T, db *sql.DB, userID uuid.UUID) {
+	t.Helper()
+	if _, err := db.ExecContext(context.Background(),
+		`UPDATE users SET is_private = TRUE WHERE id = $1`, userID); err != nil {
+		t.Fatalf("set private: %v", err)
+	}
+}
+
+func closePoll(t *testing.T, db *sql.DB, pollID uuid.UUID) {
+	t.Helper()
+	if _, err := db.ExecContext(context.Background(),
+		`UPDATE polls SET status = 'closed' WHERE id = $1`, pollID); err != nil {
+		t.Fatalf("close poll: %v", err)
+	}
+}
+
+func assertFullPoll(t *testing.T, got *models.Poll, wantID, wantOwner uuid.UUID) {
+	t.Helper()
+	if got.ID != wantID {
+		t.Errorf("id: got %v, want %v", got.ID, wantID)
+	}
+	if got.UserID != wantOwner {
+		t.Errorf("user_id: got %v, want %v", got.UserID, wantOwner)
+	}
+	if len(got.Questions) != 4 {
+		t.Fatalf("questions count: got %d, want 4", len(got.Questions))
+	}
+	// validInput: single(3 options), multiple(4), scale(0), text(0)
+	wantOpts := []int{3, 4, 0, 0}
+	for i, q := range got.Questions {
+		if len(q.Options) != wantOpts[i] {
+			t.Errorf("q%d options: got %d, want %d", i, len(q.Options), wantOpts[i])
+		}
+	}
+}
