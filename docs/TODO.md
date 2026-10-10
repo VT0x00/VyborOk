@@ -30,7 +30,7 @@
 - [x] **Day 25.** RPC `GetPoll` (GET /polls/{id}).
 - [x] **Day 26.** RPC `ListPolls` (GET /polls) — with pagination.
 - [x] **Day 27.** RPC `UpdatePoll`, `DeletePoll`, `ClosePoll`.
-- [ ] **Day 28.** Repository and poll service tests.
+- [x] **Day 28.** Repository and poll service tests.
 
 ## Phase 3. Voting (week 3)
 
