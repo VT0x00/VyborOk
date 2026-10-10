@@ -167,3 +167,17 @@
 - `SubmitVote` / `HasVoted` are removed from `main.proto` + `make gen` (they do
   not exist before this spec).
 
+## Notes
+
+- **T8 (Q2 path):** the micro v3 HTTP router accepts `POST` and `GET` on the
+  same path `/polls/{id}/vote` — no fallback to `/has-voted` needed. Verified
+  in T10 (both methods routed correctly).
+- **T10 (codec):** `HasVotedRsp` with `has_voted = false` was serialized as
+  `{}` (proto3 `omitempty` drops the zero value). Extended the response codec
+  in `main.go` (`emptyPollsCodec` → `fixedCodec`) to emit
+  `{"has_voted":false}` explicitly, same pattern as spec 0026 R2.
+- **T10 (poll service quirk):** a `single` question requires at least 2
+  options (poll service validation), which shaped the manual test polls.
+- **T10 result:** 36/36 checks passed (R1–R29, incl. R9a/R9b, R23a/R23b).
+
+
