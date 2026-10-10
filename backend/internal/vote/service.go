@@ -122,17 +122,19 @@ func (s *Service) Submit(ctx context.Context, in SubmitInput) (*models.Vote, err
 }
 
 // HasVoted reports whether userID has voted on the poll.
-// A nil userID (anonymous caller) always yields false.
+// Poll existence is a precondition (R25) and is checked before the
+// anonymous short-circuit (R26), mirroring SubmitVote's R2-before-R4 order.
+// A nil userID (anonymous caller) yields false once the poll is confirmed.
 func (s *Service) HasVoted(ctx context.Context, pollID uuid.UUID, userID *uuid.UUID) (bool, error) {
-	if userID == nil {
-		return false, nil
-	}
 	_, err := s.polls.GetByID(ctx, pollID)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return false, ErrNotFound
 		}
 		return false, fmt.Errorf("get poll: %w", err)
+	}
+	if userID == nil {
+		return false, nil
 	}
 	voted, err := s.votes.HasVoted(ctx, pollID, *userID)
 	if err != nil {

@@ -480,6 +480,19 @@ func TestService_HasVoted_PollNotFound(t *testing.T) {
 	}
 }
 
+func TestService_HasVoted_NoJWT_PollNotFound(t *testing.T) {
+	svc, db := newTestService(t)
+	defer db.Close()
+	ctx := context.Background()
+
+	// No JWT and a non-existent poll: poll existence (R25) is checked
+	// before the anonymous short-circuit (R26), so this must be ErrNotFound.
+	_, err := svc.HasVoted(ctx, uuid.New(), nil)
+	if !errors.Is(err, ErrNotFound) {
+		t.Fatalf("expected ErrNotFound, got %v", err)
+	}
+}
+
 func TestService_HasVoted_NoJWT(t *testing.T) {
 	svc, db := newTestService(t)
 	defer db.Close()
