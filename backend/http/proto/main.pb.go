@@ -1773,6 +1773,342 @@ func (x *ErrorRsp) GetMsg() string {
 	return ""
 }
 
+type SubmitVoteReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // path param
+	Answers       []*Answer              `protobuf:"bytes,2,rep,name=answers,proto3" json:"answers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitVoteReq) Reset() {
+	*x = SubmitVoteReq{}
+	mi := &file_main_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitVoteReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitVoteReq) ProtoMessage() {}
+
+func (x *SubmitVoteReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitVoteReq.ProtoReflect.Descriptor instead.
+func (*SubmitVoteReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *SubmitVoteReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SubmitVoteReq) GetAnswers() []*Answer {
+	if x != nil {
+		return x.Answers
+	}
+	return nil
+}
+
+type Answer struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	QuestionId    string                 `protobuf:"bytes,1,opt,name=question_id,json=questionId,proto3" json:"question_id,omitempty"`
+	OptionIds     []string               `protobuf:"bytes,2,rep,name=option_ids,json=optionIds,proto3" json:"option_ids,omitempty"`
+	Value         int32                  `protobuf:"varint,3,opt,name=value,proto3" json:"value,omitempty"`
+	ValueSet      bool                   `protobuf:"varint,4,opt,name=value_set,json=valueSet,proto3" json:"value_set,omitempty"`
+	Text          string                 `protobuf:"bytes,5,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Answer) Reset() {
+	*x = Answer{}
+	mi := &file_main_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Answer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Answer) ProtoMessage() {}
+
+func (x *Answer) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Answer.ProtoReflect.Descriptor instead.
+func (*Answer) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *Answer) GetQuestionId() string {
+	if x != nil {
+		return x.QuestionId
+	}
+	return ""
+}
+
+func (x *Answer) GetOptionIds() []string {
+	if x != nil {
+		return x.OptionIds
+	}
+	return nil
+}
+
+func (x *Answer) GetValue() int32 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+func (x *Answer) GetValueSet() bool {
+	if x != nil {
+		return x.ValueSet
+	}
+	return false
+}
+
+func (x *Answer) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+type SubmitVoteRsp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Vote          *Vote                  `protobuf:"bytes,1,opt,name=vote,proto3" json:"vote,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitVoteRsp) Reset() {
+	*x = SubmitVoteRsp{}
+	mi := &file_main_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitVoteRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitVoteRsp) ProtoMessage() {}
+
+func (x *SubmitVoteRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitVoteRsp.ProtoReflect.Descriptor instead.
+func (*SubmitVoteRsp) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *SubmitVoteRsp) GetVote() *Vote {
+	if x != nil {
+		return x.Vote
+	}
+	return nil
+}
+
+type Vote struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	PollId        string                 `protobuf:"bytes,2,opt,name=poll_id,json=pollId,proto3" json:"poll_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Answers       []*Answer              `protobuf:"bytes,4,rep,name=answers,proto3" json:"answers,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // RFC3339
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Vote) Reset() {
+	*x = Vote{}
+	mi := &file_main_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Vote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Vote) ProtoMessage() {}
+
+func (x *Vote) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Vote.ProtoReflect.Descriptor instead.
+func (*Vote) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *Vote) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Vote) GetPollId() string {
+	if x != nil {
+		return x.PollId
+	}
+	return ""
+}
+
+func (x *Vote) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *Vote) GetAnswers() []*Answer {
+	if x != nil {
+		return x.Answers
+	}
+	return nil
+}
+
+func (x *Vote) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+type HasVotedReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // path param
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HasVotedReq) Reset() {
+	*x = HasVotedReq{}
+	mi := &file_main_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HasVotedReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HasVotedReq) ProtoMessage() {}
+
+func (x *HasVotedReq) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HasVotedReq.ProtoReflect.Descriptor instead.
+func (*HasVotedReq) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *HasVotedReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type HasVotedRsp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HasVoted      bool                   `protobuf:"varint,1,opt,name=has_voted,json=hasVoted,proto3" json:"has_voted,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HasVotedRsp) Reset() {
+	*x = HasVotedRsp{}
+	mi := &file_main_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HasVotedRsp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HasVotedRsp) ProtoMessage() {}
+
+func (x *HasVotedRsp) ProtoReflect() protoreflect.Message {
+	mi := &file_main_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HasVotedRsp.ProtoReflect.Descriptor instead.
+func (*HasVotedRsp) Descriptor() ([]byte, []int) {
+	return file_main_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *HasVotedRsp) GetHasVoted() bool {
+	if x != nil {
+		return x.HasVoted
+	}
+	return false
+}
+
 var File_main_proto protoreflect.FileDescriptor
 
 const file_main_proto_rawDesc = "" +
@@ -1914,7 +2250,31 @@ const file_main_proto_rawDesc = "" +
 	"\fClosePollReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
 	"\bErrorRsp\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\x8c\r\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg\"J\n" +
+	"\rSubmitVoteReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12)\n" +
+	"\aanswers\x18\x02 \x03(\v2\x0f.vyborok.AnswerR\aanswers\"\x8f\x01\n" +
+	"\x06Answer\x12\x1f\n" +
+	"\vquestion_id\x18\x01 \x01(\tR\n" +
+	"questionId\x12\x1d\n" +
+	"\n" +
+	"option_ids\x18\x02 \x03(\tR\toptionIds\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\x05R\x05value\x12\x1b\n" +
+	"\tvalue_set\x18\x04 \x01(\bR\bvalueSet\x12\x12\n" +
+	"\x04text\x18\x05 \x01(\tR\x04text\"2\n" +
+	"\rSubmitVoteRsp\x12!\n" +
+	"\x04vote\x18\x01 \x01(\v2\r.vyborok.VoteR\x04vote\"\x92\x01\n" +
+	"\x04Vote\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\apoll_id\x18\x02 \x01(\tR\x06pollId\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12)\n" +
+	"\aanswers\x18\x04 \x03(\v2\x0f.vyborok.AnswerR\aanswers\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\tR\tcreatedAt\"\x1d\n" +
+	"\vHasVotedReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"*\n" +
+	"\vHasVotedRsp\x12\x1b\n" +
+	"\thas_voted\x18\x01 \x01(\bR\bhasVoted2\xa1\x0f\n" +
 	"\aVyborok\x12q\n" +
 	"\x06Health\x12\x12.vyborok.HealthReq\x1a\x12.vyborok.HealthRsp\"?\xaa\x84\x9e\x03!*\x06HealthB\x17\n" +
 	"\x15\x12\x13\n" +
@@ -1976,6 +2336,16 @@ const file_main_proto_rawDesc = "" +
 	"\tClosePoll\x12\x15.vyborok.ClosePollReq\x1a\x10.vyborok.PollRsp\"L\xaa\x84\x9e\x03$*\tClosePollB\x17\n" +
 	"\x15\x12\x13\n" +
 	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x13\"\x11/polls/{id}/close\xba\xea\xff\xf9\x01\x04\n" +
+	"\x021s\x12\x8d\x01\n" +
+	"\n" +
+	"SubmitVote\x12\x16.vyborok.SubmitVoteReq\x1a\x16.vyborok.SubmitVoteRsp\"O\xaa\x84\x9e\x03%*\n" +
+	"SubmitVoteB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x15:\x01*\"\x10/polls/{id}/vote\xba\xea\xff\xf9\x01\x04\n" +
+	"\x025s\x12\x82\x01\n" +
+	"\bHasVoted\x12\x14.vyborok.HasVotedReq\x1a\x14.vyborok.HasVotedRsp\"J\xaa\x84\x9e\x03#*\bHasVotedB\x17\n" +
+	"\x15\x12\x13\n" +
+	"\x11.vyborok.ErrorRsp\xb2\xea\xff\xf9\x01\x12\x12\x10/polls/{id}/vote\xba\xea\xff\xf9\x01\x04\n" +
 	"\x021sB)Z'github.com/VT0x00/vyborok/http/proto;pbb\x06proto3"
 
 var (
@@ -1990,7 +2360,7 @@ func file_main_proto_rawDescGZIP() []byte {
 	return file_main_proto_rawDescData
 }
 
-var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_main_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_main_proto_goTypes = []any{
 	(*HealthReq)(nil),         // 0: vyborok.HealthReq
 	(*HealthRsp)(nil),         // 1: vyborok.HealthRsp
@@ -2020,6 +2390,12 @@ var file_main_proto_goTypes = []any{
 	(*DeletePollRsp)(nil),     // 25: vyborok.DeletePollRsp
 	(*ClosePollReq)(nil),      // 26: vyborok.ClosePollReq
 	(*ErrorRsp)(nil),          // 27: vyborok.ErrorRsp
+	(*SubmitVoteReq)(nil),     // 28: vyborok.SubmitVoteReq
+	(*Answer)(nil),            // 29: vyborok.Answer
+	(*SubmitVoteRsp)(nil),     // 30: vyborok.SubmitVoteRsp
+	(*Vote)(nil),              // 31: vyborok.Vote
+	(*HasVotedReq)(nil),       // 32: vyborok.HasVotedReq
+	(*HasVotedRsp)(nil),       // 33: vyborok.HasVotedRsp
 }
 var file_main_proto_depIdxs = []int32{
 	6,  // 0: vyborok.RegisterRsp.profile:type_name -> vyborok.UserProfile
@@ -2032,37 +2408,44 @@ var file_main_proto_depIdxs = []int32{
 	17, // 7: vyborok.CreatePollReq.questions:type_name -> vyborok.CreateQuestionReq
 	18, // 8: vyborok.CreateQuestionReq.options:type_name -> vyborok.CreateOptionReq
 	22, // 9: vyborok.ListPollsRsp.polls:type_name -> vyborok.PollCard
-	0,  // 10: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
-	2,  // 11: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
-	4,  // 12: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
-	7,  // 13: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
-	9,  // 14: vyborok.Vyborok.Refresh:input_type -> vyborok.RefreshReq
-	10, // 15: vyborok.Vyborok.UpdateProfile:input_type -> vyborok.UpdateProfileReq
-	11, // 16: vyborok.Vyborok.GetProfile:input_type -> vyborok.GetProfileReq
-	16, // 17: vyborok.Vyborok.CreatePoll:input_type -> vyborok.CreatePollReq
-	19, // 18: vyborok.Vyborok.GetPoll:input_type -> vyborok.GetPollReq
-	20, // 19: vyborok.Vyborok.ListPolls:input_type -> vyborok.ListPollsReq
-	23, // 20: vyborok.Vyborok.UpdatePoll:input_type -> vyborok.UpdatePollReq
-	24, // 21: vyborok.Vyborok.DeletePoll:input_type -> vyborok.DeletePollReq
-	26, // 22: vyborok.Vyborok.ClosePoll:input_type -> vyborok.ClosePollReq
-	1,  // 23: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
-	3,  // 24: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
-	5,  // 25: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
-	8,  // 26: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
-	5,  // 27: vyborok.Vyborok.Refresh:output_type -> vyborok.LoginRsp
-	8,  // 28: vyborok.Vyborok.UpdateProfile:output_type -> vyborok.ProfileRsp
-	8,  // 29: vyborok.Vyborok.GetProfile:output_type -> vyborok.ProfileRsp
-	12, // 30: vyborok.Vyborok.CreatePoll:output_type -> vyborok.PollRsp
-	12, // 31: vyborok.Vyborok.GetPoll:output_type -> vyborok.PollRsp
-	21, // 32: vyborok.Vyborok.ListPolls:output_type -> vyborok.ListPollsRsp
-	12, // 33: vyborok.Vyborok.UpdatePoll:output_type -> vyborok.PollRsp
-	25, // 34: vyborok.Vyborok.DeletePoll:output_type -> vyborok.DeletePollRsp
-	12, // 35: vyborok.Vyborok.ClosePoll:output_type -> vyborok.PollRsp
-	23, // [23:36] is the sub-list for method output_type
-	10, // [10:23] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	29, // 10: vyborok.SubmitVoteReq.answers:type_name -> vyborok.Answer
+	31, // 11: vyborok.SubmitVoteRsp.vote:type_name -> vyborok.Vote
+	29, // 12: vyborok.Vote.answers:type_name -> vyborok.Answer
+	0,  // 13: vyborok.Vyborok.Health:input_type -> vyborok.HealthReq
+	2,  // 14: vyborok.Vyborok.Register:input_type -> vyborok.RegisterReq
+	4,  // 15: vyborok.Vyborok.Login:input_type -> vyborok.LoginReq
+	7,  // 16: vyborok.Vyborok.GetMe:input_type -> vyborok.GetMeReq
+	9,  // 17: vyborok.Vyborok.Refresh:input_type -> vyborok.RefreshReq
+	10, // 18: vyborok.Vyborok.UpdateProfile:input_type -> vyborok.UpdateProfileReq
+	11, // 19: vyborok.Vyborok.GetProfile:input_type -> vyborok.GetProfileReq
+	16, // 20: vyborok.Vyborok.CreatePoll:input_type -> vyborok.CreatePollReq
+	19, // 21: vyborok.Vyborok.GetPoll:input_type -> vyborok.GetPollReq
+	20, // 22: vyborok.Vyborok.ListPolls:input_type -> vyborok.ListPollsReq
+	23, // 23: vyborok.Vyborok.UpdatePoll:input_type -> vyborok.UpdatePollReq
+	24, // 24: vyborok.Vyborok.DeletePoll:input_type -> vyborok.DeletePollReq
+	26, // 25: vyborok.Vyborok.ClosePoll:input_type -> vyborok.ClosePollReq
+	28, // 26: vyborok.Vyborok.SubmitVote:input_type -> vyborok.SubmitVoteReq
+	32, // 27: vyborok.Vyborok.HasVoted:input_type -> vyborok.HasVotedReq
+	1,  // 28: vyborok.Vyborok.Health:output_type -> vyborok.HealthRsp
+	3,  // 29: vyborok.Vyborok.Register:output_type -> vyborok.RegisterRsp
+	5,  // 30: vyborok.Vyborok.Login:output_type -> vyborok.LoginRsp
+	8,  // 31: vyborok.Vyborok.GetMe:output_type -> vyborok.ProfileRsp
+	5,  // 32: vyborok.Vyborok.Refresh:output_type -> vyborok.LoginRsp
+	8,  // 33: vyborok.Vyborok.UpdateProfile:output_type -> vyborok.ProfileRsp
+	8,  // 34: vyborok.Vyborok.GetProfile:output_type -> vyborok.ProfileRsp
+	12, // 35: vyborok.Vyborok.CreatePoll:output_type -> vyborok.PollRsp
+	12, // 36: vyborok.Vyborok.GetPoll:output_type -> vyborok.PollRsp
+	21, // 37: vyborok.Vyborok.ListPolls:output_type -> vyborok.ListPollsRsp
+	12, // 38: vyborok.Vyborok.UpdatePoll:output_type -> vyborok.PollRsp
+	25, // 39: vyborok.Vyborok.DeletePoll:output_type -> vyborok.DeletePollRsp
+	12, // 40: vyborok.Vyborok.ClosePoll:output_type -> vyborok.PollRsp
+	30, // 41: vyborok.Vyborok.SubmitVote:output_type -> vyborok.SubmitVoteRsp
+	33, // 42: vyborok.Vyborok.HasVoted:output_type -> vyborok.HasVotedRsp
+	28, // [28:43] is the sub-list for method output_type
+	13, // [13:28] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_main_proto_init() }
@@ -2076,7 +2459,7 @@ func file_main_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_main_proto_rawDesc), len(file_main_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   28,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

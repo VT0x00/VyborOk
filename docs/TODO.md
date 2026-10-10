@@ -34,13 +34,13 @@
 
 ## Phase 3. Voting (week 3)
 
-- [ ] **Day 29.** Migration: `votes`. Model. Indexes on `poll_id`, `user_id`.
-- [ ] **Day 30.** `VoteRepository`: `Create`, `HasVoted`, `ListByPoll`.
-- [ ] **Day 31.** RPC `SubmitVote` — accepts an array of answers, validates, saves.
-- [ ] **Day 32.** RPC `HasVoted` — check whether the current user has already voted.
-- [ ] **Day 33.** Verification: anonymous voting, authenticated voting, repeat voting.
-- [ ] **Day 34.** VoteService tests.
-- [ ] **Day 35.** Refactoring + documentation.
+- [x] **Day 29.** Migration: `votes`. Model. Indexes on `poll_id`, `user_id`.
+- [x] **Day 30.** `VoteRepository`: `Create`, `HasVoted`, `ListByPoll`.
+- [x] **Day 31.** RPC `SubmitVote` — accepts an array of answers, validates, saves.
+- [x] **Day 32.** RPC `HasVoted` — check whether the current user has already voted.
+- [x] **Day 33.** Verification: anonymous voting, authenticated voting, repeat voting.
+- [x] **Day 34.** VoteService tests.
+- [x] **Day 35.** Refactoring + documentation.
 
 ## Phase 4. Basic statistics (week 4)
 

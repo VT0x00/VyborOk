@@ -29,6 +29,8 @@ type VyborokClient interface {
 	UpdatePoll(ctx context.Context, req *UpdatePollReq, opts ...client.CallOption) (*PollRsp, error)
 	DeletePoll(ctx context.Context, req *DeletePollReq, opts ...client.CallOption) (*DeletePollRsp, error)
 	ClosePoll(ctx context.Context, req *ClosePollReq, opts ...client.CallOption) (*PollRsp, error)
+	SubmitVote(ctx context.Context, req *SubmitVoteReq, opts ...client.CallOption) (*SubmitVoteRsp, error)
+	HasVoted(ctx context.Context, req *HasVotedReq, opts ...client.CallOption) (*HasVotedRsp, error)
 }
 
 type VyborokServer interface {
@@ -45,4 +47,6 @@ type VyborokServer interface {
 	UpdatePoll(ctx context.Context, req *UpdatePollReq, rsp *PollRsp) error
 	DeletePoll(ctx context.Context, req *DeletePollReq, rsp *DeletePollRsp) error
 	ClosePoll(ctx context.Context, req *ClosePollReq, rsp *PollRsp) error
+	SubmitVote(ctx context.Context, req *SubmitVoteReq, rsp *SubmitVoteRsp) error
+	HasVoted(ctx context.Context, req *HasVotedReq, rsp *HasVotedRsp) error
 }

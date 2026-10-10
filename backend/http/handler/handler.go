@@ -11,17 +11,19 @@ import (
 	"github.com/VT0x00/vyborok/internal/auth"
 	"github.com/VT0x00/vyborok/internal/models"
 	"github.com/VT0x00/vyborok/internal/poll"
+	"github.com/VT0x00/vyborok/internal/vote"
 	"github.com/google/uuid"
 )
 
 type VyborokHandler struct {
 	auth   *auth.Service
 	poll   *poll.Service
+	vote   *vote.Service
 	logger *slog.Logger
 }
 
-func New(authSvc *auth.Service, pollSvc *poll.Service, logger *slog.Logger) *VyborokHandler {
-	return &VyborokHandler{auth: authSvc, poll: pollSvc, logger: logger}
+func New(authSvc *auth.Service, pollSvc *poll.Service, voteSvc *vote.Service, logger *slog.Logger) *VyborokHandler {
+	return &VyborokHandler{auth: authSvc, poll: pollSvc, vote: voteSvc, logger: logger}
 }
 
 // mustUserID extracts the authenticated user id from the context or

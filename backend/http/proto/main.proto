@@ -125,6 +125,24 @@ service Vyborok {
         option (micro.api.http) = { post: "/polls/{id}/close"; };
         option (micro.api.micro_method) = { timeout: "1s"; };
     }
+
+    rpc SubmitVote(SubmitVoteReq) returns (SubmitVoteRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "SubmitVote";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { post: "/polls/{id}/vote"; body: "*"; };
+        option (micro.api.micro_method) = { timeout: "5s"; };
+    }
+
+    rpc HasVoted(HasVotedReq) returns (HasVotedRsp) {
+        option (micro.openapiv3.openapiv3_operation) = {
+            operation_id: "HasVoted";
+            responses: { default: { reference: { _ref: ".vyborok.ErrorRsp"; }; }; };
+        };
+        option (micro.api.http) = { get: "/polls/{id}/vote"; };
+        option (micro.api.micro_method) = { timeout: "1s"; };
+    }
 }
 
 message HealthReq {}
@@ -304,4 +322,37 @@ message ClosePollReq {
 
 message ErrorRsp {
     string msg = 1;
+}
+
+message SubmitVoteReq {
+    string id = 1; // path param
+    repeated Answer answers = 2;
+}
+
+message Answer {
+    string question_id = 1;
+    repeated string option_ids = 2;
+    int32 value = 3;
+    bool value_set = 4;
+    string text = 5;
+}
+
+message SubmitVoteRsp {
+    Vote vote = 1;
+}
+
+message Vote {
+    string id = 1;
+    string poll_id = 2;
+    string user_id = 3;
+    repeated Answer answers = 4;
+    string created_at = 5; // RFC3339
+}
+
+message HasVotedReq {
+    string id = 1; // path param
+}
+
+message HasVotedRsp {
+    bool has_voted = 1;
 }

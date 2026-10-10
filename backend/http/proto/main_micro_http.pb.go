@@ -107,6 +107,20 @@ var (
 			Body:   "",
 			Stream: false,
 		},
+		{
+			Name:   "Vyborok.SubmitVote",
+			Path:   "/polls/{id}/vote",
+			Method: "POST",
+			Body:   "*",
+			Stream: false,
+		},
+		{
+			Name:   "Vyborok.HasVoted",
+			Path:   "/polls/{id}/vote",
+			Method: "GET",
+			Body:   "",
+			Stream: false,
+		},
 	}
 )
 
@@ -385,6 +399,47 @@ func (c *vyborokClient) ClosePoll(ctx context.Context, req *ClosePollReq, opts .
 	return rsp, nil
 }
 
+func (c *vyborokClient) SubmitVote(ctx context.Context, req *SubmitVoteReq, opts ...client.CallOption) (*SubmitVoteRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodPost),
+		v31.Path("/polls/{id}/vote"),
+		v31.Body("*"),
+	)
+	td := time.Duration(5000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &SubmitVoteRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.SubmitVote", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
+func (c *vyborokClient) HasVoted(ctx context.Context, req *HasVotedReq, opts ...client.CallOption) (*HasVotedRsp, error) {
+	errmap := make(map[string]interface{}, 1)
+	errmap["default"] = &ErrorRsp{}
+	opts = append(opts,
+		v31.ErrorMap(errmap),
+	)
+	opts = append(opts,
+		v31.Method(http.MethodGet),
+		v31.Path("/polls/{id}/vote"),
+	)
+	td := time.Duration(1000000000)
+	opts = append(opts, client.WithRequestTimeout(td))
+	rsp := &HasVotedRsp{}
+	err := c.c.Call(ctx, c.c.NewRequest(c.name, "Vyborok.HasVoted", req), rsp, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return rsp, nil
+}
+
 type vyborokServer struct {
 	VyborokServer
 }
@@ -493,6 +548,22 @@ func (h *vyborokServer) ClosePoll(ctx context.Context, req *ClosePollReq, rsp *P
 	return h.VyborokServer.ClosePoll(ctx, req, rsp)
 }
 
+func (h *vyborokServer) SubmitVote(ctx context.Context, req *SubmitVoteReq, rsp *SubmitVoteRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(5000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.SubmitVote(ctx, req, rsp)
+}
+
+func (h *vyborokServer) HasVoted(ctx context.Context, req *HasVotedReq, rsp *HasVotedRsp) error {
+	var cancel context.CancelFunc
+	td := time.Duration(1000000000)
+	ctx, cancel = context.WithTimeout(ctx, td)
+	defer cancel()
+	return h.VyborokServer.HasVoted(ctx, req, rsp)
+}
+
 func RegisterVyborokServer(s server.Server, sh VyborokServer, opts ...server.HandlerOption) error {
 	type vyborok interface {
 		Health(ctx context.Context, req *HealthReq, rsp *HealthRsp) error
@@ -508,6 +579,8 @@ func RegisterVyborokServer(s server.Server, sh VyborokServer, opts ...server.Han
 		UpdatePoll(ctx context.Context, req *UpdatePollReq, rsp *PollRsp) error
 		DeletePoll(ctx context.Context, req *DeletePollReq, rsp *DeletePollRsp) error
 		ClosePoll(ctx context.Context, req *ClosePollReq, rsp *PollRsp) error
+		SubmitVote(ctx context.Context, req *SubmitVoteReq, rsp *SubmitVoteRsp) error
+		HasVoted(ctx context.Context, req *HasVotedReq, rsp *HasVotedRsp) error
 	}
 	type Vyborok struct {
 		vyborok

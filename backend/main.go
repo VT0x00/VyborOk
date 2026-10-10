@@ -12,6 +12,7 @@ import (
 	"github.com/VT0x00/vyborok/internal/config"
 	"github.com/VT0x00/vyborok/internal/poll"
 	"github.com/VT0x00/vyborok/internal/repository"
+	"github.com/VT0x00/vyborok/internal/vote"
 	"github.com/VT0x00/vyborok/pkg/database"
 
 	jsoncodec "go.unistack.org/micro-codec-json/v3"
@@ -53,16 +54,18 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	pollRepo := repository.NewPollRepository(db)
+	voteRepo := repository.NewVoteRepository(db)
 	jwtMgr := auth.NewJWTManager(cfg.JWT.Secret, cfg.JWT.Issuer, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)
 	authSvc := auth.NewService(userRepo, jwtMgr)
 	pollSvc := poll.NewService(pollRepo, userRepo)
-	h := handler.New(authSvc, pollSvc, logger)
+	voteSvc := vote.NewService(voteRepo, pollRepo)
+	h := handler.New(authSvc, pollSvc, voteSvc, logger)
 
 	// --- micro HTTP-сервер ---
 	srv := httpsrv.NewServer(
 		server.Name("vyborok"),
 		server.Address(":"+cfg.App.Port),
-		server.Codec("application/json", emptyPollsCodec{inner: jsoncodec.NewCodec()}),
+		server.Codec("application/json", fixedCodec{inner: jsoncodec.NewCodec()}),
 		server.Hooks(jwtMgr.Middleware()),
 	)
 
@@ -98,23 +101,26 @@ func setupLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 }
 
-// emptyPollsCodec оборачивает JSON-кодек и сериализует пустой ListPollsRsp
-// как {"polls":[]}, а не как {}.
-// У сгенерированного поля json-тег "polls,omitempty", поэтому
-// encoding/json отбрасывает пустые срезы (спека 0026, R2).
-type emptyPollsCodec struct {
+// fixedCodec оборачивает JSON-кодек и сериализует ответы, у которых
+// proto3 omitempty отбрасывает значимые нулевые значения:
+//   - пустой ListPollsRsp → {"polls":[]} (спека 0026, R2)
+//   - HasVotedRsp с has_voted=false → {"has_voted":false} (спека 0028, R26)
+type fixedCodec struct {
 	inner codec.Codec
 }
 
-func (c emptyPollsCodec) Marshal(v interface{}, opts ...codec.Option) ([]byte, error) {
+func (c fixedCodec) Marshal(v interface{}, opts ...codec.Option) ([]byte, error) {
 	if rsp, ok := v.(*pb.ListPollsRsp); ok && len(rsp.Polls) == 0 {
 		return []byte(`{"polls":[]}`), nil
+	}
+	if rsp, ok := v.(*pb.HasVotedRsp); ok && !rsp.HasVoted {
+		return []byte(`{"has_voted":false}`), nil
 	}
 	return c.inner.Marshal(v, opts...)
 }
 
-func (c emptyPollsCodec) Unmarshal(b []byte, v interface{}, opts ...codec.Option) error {
+func (c fixedCodec) Unmarshal(b []byte, v interface{}, opts ...codec.Option) error {
 	return c.inner.Unmarshal(b, v, opts...)
 }
 
-func (c emptyPollsCodec) String() string { return "json" }
+func (c fixedCodec) String() string { return "json" }
